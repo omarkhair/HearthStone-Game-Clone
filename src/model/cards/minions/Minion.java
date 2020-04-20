@@ -14,6 +14,7 @@ public class Minion extends Card implements Cloneable {
 	public boolean sleeping;
 	private boolean attacked;
 	private MinionListener listener;
+	private boolean charge;
 
 	public Minion(String name, int manaCost, Rarity rarity, int attack, int maxHP, boolean taunt, boolean divine,
 			boolean charge) {
@@ -23,6 +24,7 @@ public class Minion extends Card implements Cloneable {
 		this.currentHP = maxHP;
 		this.taunt = taunt;
 		this.divine = divine;
+		this.charge=charge;
 		if (!charge)
 			this.sleeping = true;
 	}
@@ -129,5 +131,22 @@ public class Minion extends Card implements Cloneable {
 
 	public Minion clone() throws CloneNotSupportedException {
 		return (Minion) super.clone();
+	}
+	public String toString() {
+		
+		String s= super.toString();
+		s+="\nHealth Points: "+currentHP+"/"+maxHP;
+		s+="\nAttack: "+attack;
+		String s2="";
+		s2+="\nABILITIES: ";
+		if(taunt)
+			s2+="\nTaunt";
+		if(divine)
+			s2+="\nDivine Shield";
+		if(charge)
+			s2+="\nCharge";
+		if(charge||divine||taunt)
+			s+=s2;
+		return s;
 	}
 }

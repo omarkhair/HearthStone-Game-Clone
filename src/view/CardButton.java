@@ -9,9 +9,22 @@ import model.cards.Card;
 
 
 public class CardButton extends JButton{
+	private Card card;
 	public CardButton() {
-		//TODO search for card
 		setPreferredSize(new Dimension(90,150));
 	}
+	public CardButton(Card card) {
+		super();
+		setPreferredSize(new Dimension(90,150));
+		this.card = card;
+	}
+	public Card getCard() {
+		return card;
+	}
+	public void setCard(Card card) {
+		this.card = card;
+	}
+	
+	
 	
 }

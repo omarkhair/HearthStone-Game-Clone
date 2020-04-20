@@ -11,6 +11,8 @@ import javax.swing.*;
 import engine.*;
 import exceptions.*;
 import model.cards.*;
+import model.cards.minions.Minion;
+import model.cards.spells.Spell;
 import model.heroes.*;
 import view.*;
 
@@ -35,6 +37,8 @@ public class Controller implements GameListener, ActionListener {
 		upper = game.getOpponent();
 
 		gameView = new GameView();
+		gameView.getCardView().getPlay().addActionListener(this);
+		gameView.getCardView().getAttack().addActionListener(this);
 
 		modifyHeroPanel(lower);
 		modifyHeroPanel(upper);
@@ -83,7 +87,7 @@ public class Controller implements GameListener, ActionListener {
 			bar = gameView.getUpperHero().getManaBar();
 		}
 		bar.setValue(value * 10);
-		bar.setString(value + "");
+		bar.setString(value + "/" + hero.getTotalManaCrystals());
 	}
 
 	private void generateHand(Hero h) {
@@ -97,16 +101,12 @@ public class Controller implements GameListener, ActionListener {
 			panel = gameView.getUpperHand();
 		}
 		for (Card c : h.getHand()) {
-			CardButton b = new CardButton();
+			CardButton b = new CardButton(c);
 			b.setText(c.getName());
 			b.addActionListener(this);
 			heroHand.add(b);
 			panel.add(b);
 		}
-	}
-
-	public static void main(String[] args) throws IOException, CloneNotSupportedException {
-		Controller c = new Controller(new Mage(), new Mage());
 	}
 
 	@Override
@@ -119,50 +119,72 @@ public class Controller implements GameListener, ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		JButton b = (JButton) (e.getSource());
 		if (b instanceof CardButton) {
-			CardButton cb=(CardButton)b;
-			ArrayList<CardButton> curHand;
-			ArrayList<CardButton> curField;
-			ArrayList<CardButton> oppHand;
-			ArrayList<CardButton> oppField;
-			
-			
-			if (game.getCurrentHero() == lower) {
-				curHand = hand1;
-				curField = field1;
-				oppHand = hand2;
-				oppField = field2;
-			} else {
-				curHand = hand2;
-				curField = field2;
-				oppHand = hand1;
-				oppField = field1;
-			}
-			// ............
-			if (curHand.contains(cb)) {
-				
-				monitorCard(false,true,curHand.indexOf(cb),game.getCurrentHero().getHand());
-			} else if (curField.contains(cb)) {
-				monitorCard(true,false,curField.indexOf(cb),game.getCurrentHero().getField());
-			} else if(oppHand.contains(cb)){
-				monitorCard(false,false,oppHand.indexOf(cb),game.getOpponent().getHand());
-			} else if(oppField.contains(cb)) {
-				monitorCard(false,false,oppField.indexOf(cb),game.getOpponent().getField());
+			CardButton cb = (CardButton) b;
+			if (game.getCurrentHero().getHand().contains(cb.getCard())) {
+				monitorCard(false, true, cb);
+			} else if (game.getCurrentHero().getField().contains(cb.getCard())) {
+				monitorCard(true, false, cb);
+			} else if (game.getOpponent().getHand().contains(cb.getCard())) {
+				// monitorCard(false,false,oppHand.indexOf(cb),game.getOpponent().getHand());
+			} else if (game.getOpponent().getField().contains(cb.getCard())) {
+				monitorCard(false, false, cb);
 			} else {
 				System.out.println("Error");
 			}
+		} else if (b.getText().equals("Play")) {
+			Card card = gameView.getCardView().getCard();
+			CardButton cardButton = gameView.getCardView().getCardButton();
+			playCard(card, cardButton);
+		} else {
+			gameView.getCardView().setVisible(false);
+
+		}
+	}
+
+	private void playCard(Card card, CardButton cardButton) {
+		System.out.println("in");
+		System.out.println(card);
+		if (card instanceof Minion) {
+			System.out.println("inin");
+
+		try {
+			game.getCurrentHero().playMinion((Minion) card);
+		} catch (NotYourTurnException | NotEnoughManaException | FullFieldException e) {
+			JOptionPane.showMessageDialog(null, e.getMessage(), "InfoBox: " + "ERRRRROOOOORR",
+					JOptionPane.INFORMATION_MESSAGE);
+			e.printStackTrace();
+		}
 		}
 		else {
-			gameView.getCardView().setVisible(false);
+			game.getCurrentHero().castSpell((Spell) card);
 		}
+
 	}
 
-	private void monitorCard(boolean attack, boolean play, int ind, ArrayList al) {
+	private void monitorCard(boolean attack, boolean play, CardButton cb) {
 		gameView.getCardView().setVisible(true);
-		Card c=(Card)al.get(ind);
-		//TODO sora
+		Card c = cb.getCard();
+		gameView.getCardView().setCard(c);
+		gameView.getCardView().setCardButton(cb);
+		// TODO sora
 		gameView.getCardView().getAttack().setVisible(attack);
 		gameView.getCardView().getPlay().setVisible(play);
+		gameView.getCardView().getCardName().setText("<html>" + c.getName() + "<html>");
+		gameView.getCardView().getCardInfo().setText(c.toString());
+		ImageIcon imageIcon = new ImageIcon(
+				new ImageIcon(pathofcardImage(c)).getImage().getScaledInstance(250, 300, Image.SCALE_DEFAULT));
+		gameView.getCardView().getCardImage().setIcon(imageIcon);
 	}
 
-	
+	public String pathofcardImage(Card c) {
+		String s = "";
+		s += "images" + "/" + c.getName() + ".png";
+		System.out.println(s);
+		return s;
+	}
+
+	public static void main(String[] args) throws IOException, CloneNotSupportedException {
+		Controller c = new Controller(new Mage(), new Mage());
+	}
+
 }
