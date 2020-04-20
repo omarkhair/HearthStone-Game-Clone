@@ -1,8 +1,13 @@
 package view;
 import java.awt.*;
+import java.awt.event.*;
 import java.util.*;
 import javax.swing.*;
 import model.cards.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.Timer;
+
 @SuppressWarnings("serial")
 public class GameView extends JFrame{
 	private JPanel field;              //kol eli 3al yemeen
@@ -26,6 +31,10 @@ public class GameView extends JFrame{
 	private JPanel lowerField;
 	private JPanel upperField;
 	
+	private JPanel middlePanel;
+	private JButton endTurn;
+	private JLabel dialogue;
+	
 	
 	 
 //	private ArrayList<Card> hero1Hand;
@@ -39,12 +48,20 @@ public class GameView extends JFrame{
 		setSize(1600, 900);
 		setLocationRelativeTo(null);
 		getContentPane().setLayout(new BorderLayout());
+		middlePanel= new JPanel();
+		middlePanel.setBackground(Color.orange);
 		buildPanels();
 		
-		
-		
-		
-		
+		field.add(middlePanel);
+		endTurn=new JButton("End Turn");
+		endTurn.setPreferredSize(new Dimension(300,100));
+		middlePanel.setLayout(new BorderLayout());
+		middlePanel.add(endTurn, BorderLayout.EAST);
+		dialogue=new JLabel();
+		dialogue.setFont(new Font("Times New Roman", Font.BOLD, 35));
+		dialogue.setForeground(Color.red);
+		dialogue.setHorizontalAlignment(JLabel.CENTER);
+		middlePanel.add(dialogue);
 		
 		
 		
@@ -74,7 +91,22 @@ public class GameView extends JFrame{
 	}
 	
 		
+	public void setDialogueTextwithTimer(String s) {
+		dialogue.setText(s);
+		 Timer t = new Timer(5000, new ActionListener() {
 
+	            @Override
+	            public void actionPerformed(ActionEvent e) {
+	                dialogue.setText(null);
+	            }
+	        });
+	        t.setRepeats(false);
+	        t.start();
+		
+	}
+	public void setDialogueText(String s) {
+		dialogue.setText(s);
+	}
 	private void buildPanels() {
 		cardView=new CardInfoPanel();
 		add(cardView,BorderLayout.WEST);
@@ -205,9 +237,78 @@ public class GameView extends JFrame{
 	public void setCardView(CardInfoPanel cardView) {
 		this.cardView = cardView;
 	}
-	public static void main(String[] args) {
-		
-		//@SuppressWarnings("notUsed")
-		GameView g=new GameView();
+
+
+
+	public JPanel getField() {
+		return field;
 	}
+
+
+
+	public void setField(JPanel field) {
+		this.field = field;
+	}
+
+
+
+	public JPanel getlCardArea() {
+		return lCardArea;
+	}
+
+
+
+	public void setlCardArea(JPanel lCardArea) {
+		this.lCardArea = lCardArea;
+	}
+
+
+
+	public JPanel getuCardArea() {
+		return uCardArea;
+	}
+
+
+
+	public void setuCardArea(JPanel uCardArea) {
+		this.uCardArea = uCardArea;
+	}
+
+
+
+	public JButton getEndTurn() {
+		return endTurn;
+	}
+
+
+
+	public void setEndTurn(JButton endTurn) {
+		this.endTurn = endTurn;
+	}
+
+
+
+	public JPanel getMiddlePanel() {
+		return middlePanel;
+	}
+
+
+
+	public void setMiddlePanel(JPanel middlePanel) {
+		this.middlePanel = middlePanel;
+	}
+
+
+
+	public JLabel getDialogue() {
+		return dialogue;
+	}
+
+
+
+	public void setDialogue(JLabel dialogue) {
+		this.dialogue = dialogue;
+	}
+	
+	
 }

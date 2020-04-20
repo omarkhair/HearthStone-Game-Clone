@@ -35,6 +35,7 @@ public class CardInfoPanel extends JPanel {
 		cardImage.setPreferredSize(new Dimension(250, 360));
 		cardInfo = new JTextArea(5,15);
 		JScrollPane scrollPane = new JScrollPane(cardInfo);
+		scrollPane.getVerticalScrollBar().setValue(0);
 		//scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		cardInfo.setFont(new Font("Traditional serif", Font.BOLD, 20));
 		

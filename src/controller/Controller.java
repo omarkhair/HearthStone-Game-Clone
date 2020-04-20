@@ -26,6 +26,8 @@ public class Controller implements GameListener, ActionListener {
 	private Hero lower;
 	private Hero upper;
 
+	private boolean onAttackMode;
+
 	public Controller(Hero h1, Hero h2) {
 		try {
 			game = new Game(h1, h2);
@@ -39,6 +41,7 @@ public class Controller implements GameListener, ActionListener {
 		gameView = new GameView();
 		gameView.getCardView().getPlay().addActionListener(this);
 		gameView.getCardView().getAttack().addActionListener(this);
+		gameView.getEndTurn().addActionListener(this);
 
 		modifyHeroPanel(lower);
 		modifyHeroPanel(upper);
@@ -47,11 +50,11 @@ public class Controller implements GameListener, ActionListener {
 		field1 = new ArrayList<CardButton>();
 		field2 = new ArrayList<CardButton>();
 
-		generateHand(lower);
-		generateHand(upper);
+		buildHand(lower);
+		buildHand(upper);
 		gameView.revalidate();
 		gameView.repaint();
-
+		onAttackMode = false;
 	}
 
 	private void modifyHeroPanel(Hero hero) {
@@ -74,7 +77,7 @@ public class Controller implements GameListener, ActionListener {
 		String s = "images/";
 		s += hero.getName();
 		s += ".png";
-		System.out.println(s);
+		// System.out.println(s);
 		return s;
 	}
 
@@ -90,7 +93,7 @@ public class Controller implements GameListener, ActionListener {
 		bar.setString(value + "/" + hero.getTotalManaCrystals());
 	}
 
-	private void generateHand(Hero h) {
+	private void buildHand(Hero h) {
 		ArrayList<CardButton> heroHand;
 		JPanel panel;
 		if (h == lower) {
@@ -100,11 +103,34 @@ public class Controller implements GameListener, ActionListener {
 			heroHand = hand2;
 			panel = gameView.getUpperHand();
 		}
+		panel.removeAll();
+		heroHand.clear();
 		for (Card c : h.getHand()) {
 			CardButton b = new CardButton(c);
 			b.setText(c.getName());
 			b.addActionListener(this);
 			heroHand.add(b);
+			panel.add(b);
+		}
+	}
+
+	private void buildField(Hero h) {
+		ArrayList<CardButton> heroField;
+		JPanel panel;
+		if (h == lower) {
+			heroField = field1;
+			panel = gameView.getLowerField();
+		} else {
+			heroField = field2;
+			panel = gameView.getUpperField();
+		}
+		panel.removeAll();
+		heroField.clear();
+		for (Card c : h.getField()) {
+			CardButton b = new CardButton(c);
+			b.setText(c.getName());
+			b.addActionListener(this);
+			heroField.add(b);
 			panel.add(b);
 		}
 	}
@@ -120,49 +146,108 @@ public class Controller implements GameListener, ActionListener {
 		JButton b = (JButton) (e.getSource());
 		if (b instanceof CardButton) {
 			CardButton cb = (CardButton) b;
-			if (game.getCurrentHero().getHand().contains(cb.getCard())) {
-				monitorCard(false, true, cb);
-			} else if (game.getCurrentHero().getField().contains(cb.getCard())) {
-				monitorCard(true, false, cb);
-			} else if (game.getOpponent().getHand().contains(cb.getCard())) {
-				// monitorCard(false,false,oppHand.indexOf(cb),game.getOpponent().getHand());
-			} else if (game.getOpponent().getField().contains(cb.getCard())) {
-				monitorCard(false, false, cb);
+			if (onAttackMode) {
+				try {
+					if(!(cb.getCard() instanceof Minion))
+						throw new InvalidTargetException("You can only attack opponent field cards or hero");
+					game.getCurrentHero().attackWithMinion((Minion)gameView.getCardView().getCard(), (Minion) cb.getCard());
+					rebuildAll();
+					onAttackMode=false;
+					gameView.getCardView().setVisible(false);
+				} catch (CannotAttackException | NotYourTurnException | TauntBypassException | InvalidTargetException
+						| NotSummonedException e1) {
+					gameView.setDialogueTextwithTimer(e1.getMessage());
+					
+				}
+				
 			} else {
-				System.out.println("Error");
+				
+				if (game.getCurrentHero().getHand().contains(cb.getCard())) {
+					monitorCard(false, true, cb);
+				} else if (game.getCurrentHero().getField().contains(cb.getCard())) {
+					monitorCard(true, false, cb);
+				} else if (game.getOpponent().getHand().contains(cb.getCard())) {
+					gameView.getCardView().setVisible(false);
+				} else if (game.getOpponent().getField().contains(cb.getCard())) {
+					monitorCard(false, false, cb);
+				} else {
+					System.out.println("Error");
+				}
 			}
 		} else if (b.getText().equals("Play")) {
 			Card card = gameView.getCardView().getCard();
 			CardButton cardButton = gameView.getCardView().getCardButton();
 			playCard(card, cardButton);
+
+		} else if (b.getText().equals("Attack")) {
+			Card card = gameView.getCardView().getCard();
+			CardButton cardButton = gameView.getCardView().getCardButton();
+			gameView.setDialogueText("Choose a Minion or Hero to attack");
+			onAttackMode=true;
+
+		} else if (b.getText().equals("End Turn")) {
+			try {
+				game.endTurn();
+			} catch (FullHandException e1) {
+				monitorBurnedCard(e1.getBurned());
+
+			} catch (CloneNotSupportedException e1) {
+				System.out.println("ayhabal");
+			}
+			onAttackMode = false;
+			rebuildAll();
+
 		} else {
 			gameView.getCardView().setVisible(false);
 
 		}
 	}
 
+	private void monitorBurnedCard(Card burned) {
+		CardButton cb = new CardButton(burned);
+		monitorCard(false, false, cb);
+		gameView.getCardView().setBackground(Color.RED);
+	}
+
 	private void playCard(Card card, CardButton cardButton) {
-		System.out.println("in");
-		System.out.println(card);
+		// System.out.println("in");
+		// System.out.println(card);
 		if (card instanceof Minion) {
-			System.out.println("inin");
+			// System.out.println("inin");
 
-		try {
-			game.getCurrentHero().playMinion((Minion) card);
-		} catch (NotYourTurnException | NotEnoughManaException | FullFieldException e) {
-			JOptionPane.showMessageDialog(null, e.getMessage(), "InfoBox: " + "ERRRRROOOOORR",
-					JOptionPane.INFORMATION_MESSAGE);
-			e.printStackTrace();
-		}
-		}
-		else {
-			game.getCurrentHero().castSpell((Spell) card);
-		}
+			try {
+				game.getCurrentHero().playMinion((Minion) card);
+			} catch (NotYourTurnException | NotEnoughManaException | FullFieldException e) {
+//			JOptionPane.showMessageDialog(null, e.getMessage(), "InfoBox: " + "Error",
+//					JOptionPane.INFORMATION_MESSAGE);
+				gameView.setDialogueTextwithTimer(e.getMessage());
 
+			}
+		} else if (card instanceof Spell) {
+			// TODO spell choosing
+			// game.getCurrentHero().castSpell((Spell) card);
+		} else {
+			System.out.println("neither minion nor spell");
+		}
+		rebuildAll();
+
+	}
+
+	private void rebuildAll() {
+		buildHand(lower);
+		buildField(lower);
+		buildHand(upper);
+		buildField(upper);
+		modifyMana(lower);
+		modifyMana(upper);
+		gameView.revalidate();
+		gameView.repaint();
+	//	gameView.setDialogueText("");
 	}
 
 	private void monitorCard(boolean attack, boolean play, CardButton cb) {
 		gameView.getCardView().setVisible(true);
+		gameView.getCardView().setBackground(Color.cyan);
 		Card c = cb.getCard();
 		gameView.getCardView().setCard(c);
 		gameView.getCardView().setCardButton(cb);
@@ -171,6 +256,7 @@ public class Controller implements GameListener, ActionListener {
 		gameView.getCardView().getPlay().setVisible(play);
 		gameView.getCardView().getCardName().setText("<html>" + c.getName() + "<html>");
 		gameView.getCardView().getCardInfo().setText(c.toString());
+		gameView.getCardView().getCardInfo().setCaretPosition(0);
 		ImageIcon imageIcon = new ImageIcon(
 				new ImageIcon(pathofcardImage(c)).getImage().getScaledInstance(250, 300, Image.SCALE_DEFAULT));
 		gameView.getCardView().getCardImage().setIcon(imageIcon);
@@ -179,7 +265,7 @@ public class Controller implements GameListener, ActionListener {
 	public String pathofcardImage(Card c) {
 		String s = "";
 		s += "images" + "/" + c.getName() + ".png";
-		System.out.println(s);
+		// System.out.println(s);
 		return s;
 	}
 
