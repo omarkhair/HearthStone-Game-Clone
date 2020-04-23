@@ -233,7 +233,8 @@ public class Controller implements GameListener, ActionListener {
 			} else {
 				Card card = gameView.getCardView().getCard();
 				CardButton cardButton = gameView.getCardView().getCardButton();
-				setDialogueText("Choose a Minion or Hero to attack");
+				defaultMessage="Choose a Minion or Hero to attack";
+				setDialogueText(defaultMessage);
 				onAttackMode = true;				
 			}
 		} else if (b.getText().equals("End Turn")) {
@@ -268,6 +269,7 @@ public class Controller implements GameListener, ActionListener {
 	public void setDefaultMessage() {
 		String message=lower==game.getCurrentHero()?"Player 1 turn":"Player 2 turn";
 		gameView.getDialogue().setText(message);
+		defaultMessage=message;
 	}
 	public String getDefaultMessage() {
 		return defaultMessage;
