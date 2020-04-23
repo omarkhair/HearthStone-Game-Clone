@@ -80,7 +80,7 @@ public class Minion extends Card implements Cloneable {
 	public void setCurrentHP(int currentHP) {
 		this.currentHP = currentHP;
 		if (this.currentHP > maxHP)
-			currentHP = maxHP;
+			this.currentHP = maxHP;
 		else if (this.currentHP <= 0) {
 			this.currentHP = 0;
 			listener.onMinionDeath(this);

@@ -3,10 +3,13 @@ package controller;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.Timer;
 
 import engine.*;
 import exceptions.*;
@@ -26,6 +29,7 @@ public class Controller implements GameListener, ActionListener {
 	private Hero lower;
 	private Hero upper;
 
+	private String defaultMessage;
 	private boolean onAttackMode;
 
 	public Controller(Hero h1, Hero h2) {
@@ -55,6 +59,34 @@ public class Controller implements GameListener, ActionListener {
 		gameView.revalidate();
 		gameView.repaint();
 		onAttackMode = false;
+		heroImageAction(lower);
+		heroImageAction(upper);
+		setDefaultMessage();
+	}
+
+	private void heroImageAction(Hero hero) {
+		HeroPanel panel;
+		if (hero == lower)
+			panel = gameView.getLowerHero();
+		else
+			panel = gameView.getUpperHero();
+		panel.getHeroImage().addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				if (onAttackMode) {
+					Minion attacker = (Minion) gameView.getCardView().getCard();
+
+					try {
+						game.getCurrentHero().attackWithMinion(attacker, hero);
+						rebuildAll();
+					} catch (CannotAttackException | NotYourTurnException | TauntBypassException | NotSummonedException
+							| InvalidTargetException e1) {
+						setDialogueTextwithTimer(e1.getMessage());
+					}
+
+				}
+
+			}
+		});
 	}
 
 	private void modifyHeroPanel(Hero hero) {
@@ -69,6 +101,7 @@ public class Controller implements GameListener, ActionListener {
 		hpanel.getHeroImage().setIcon(imageIcon);
 		hpanel.getHeroType().setText(hero.getClass().toString().substring(19));
 		modifyMana(hero);
+		modifyHealth(hero);
 		hpanel.getHeroPower().addActionListener(this);
 		// System.out.println(hero.getClass().toString().substring(19));
 	}
@@ -91,6 +124,18 @@ public class Controller implements GameListener, ActionListener {
 		}
 		bar.setValue(value * 10);
 		bar.setString(value + "/" + hero.getTotalManaCrystals());
+	}
+
+	private void modifyHealth(Hero hero) {
+		int value = hero.getCurrentHP();
+		JProgressBar bar;
+		if (hero == lower) {
+			bar = gameView.getLowerHero().getHealth();
+		} else {
+			bar = gameView.getUpperHero().getHealth();
+		}
+		bar.setValue((int) (value * 100.0 / 30.0));
+		bar.setString(value + "/30");
 	}
 
 	private void buildHand(Hero h) {
@@ -148,20 +193,21 @@ public class Controller implements GameListener, ActionListener {
 			CardButton cb = (CardButton) b;
 			if (onAttackMode) {
 				try {
-					if(!(cb.getCard() instanceof Minion))
+					if (!(cb.getCard() instanceof Minion))
 						throw new InvalidTargetException("You can only attack opponent field cards or hero");
-					game.getCurrentHero().attackWithMinion((Minion)gameView.getCardView().getCard(), (Minion) cb.getCard());
+					game.getCurrentHero().attackWithMinion((Minion) gameView.getCardView().getCard(),
+							(Minion) cb.getCard());
 					rebuildAll();
-					onAttackMode=false;
+					onAttackMode = false;
 					gameView.getCardView().setVisible(false);
 				} catch (CannotAttackException | NotYourTurnException | TauntBypassException | InvalidTargetException
 						| NotSummonedException e1) {
-					gameView.setDialogueTextwithTimer(e1.getMessage());
-					
+					setDialogueTextwithTimer(e1.getMessage());
+
 				}
-				
+
 			} else {
-				
+
 				if (game.getCurrentHero().getHand().contains(cb.getCard())) {
 					monitorCard(false, true, cb);
 				} else if (game.getCurrentHero().getField().contains(cb.getCard())) {
@@ -178,29 +224,74 @@ public class Controller implements GameListener, ActionListener {
 			Card card = gameView.getCardView().getCard();
 			CardButton cardButton = gameView.getCardView().getCardButton();
 			playCard(card, cardButton);
+			gameView.getCardView().setVisible(false);
 
 		} else if (b.getText().equals("Attack")) {
-			Card card = gameView.getCardView().getCard();
-			CardButton cardButton = gameView.getCardView().getCardButton();
-			gameView.setDialogueText("Choose a Minion or Hero to attack");
-			onAttackMode=true;
-
+			if (onAttackMode) {
+				onAttackMode = false;
+				setDefaultMessage();
+			} else {
+				Card card = gameView.getCardView().getCard();
+				CardButton cardButton = gameView.getCardView().getCardButton();
+				setDialogueText("Choose a Minion or Hero to attack");
+				onAttackMode = true;				
+			}
 		} else if (b.getText().equals("End Turn")) {
+			boolean burned = false;
+
 			try {
 				game.endTurn();
+
 			} catch (FullHandException e1) {
 				monitorBurnedCard(e1.getBurned());
-
+				burned = true;
 			} catch (CloneNotSupportedException e1) {
 				System.out.println("ayhabal");
 			}
 			onAttackMode = false;
+			setDefaultMessage();
 			rebuildAll();
-
-		} else {
+			if (burned)
+				gameView.getCardView().setVisible(true);
+			else
+				gameView.getCardView().setVisible(false);
+		} else if (b.getText().equals("Hero Power")) {
 			gameView.getCardView().setVisible(false);
-
+			onAttackMode = false;
+			setDefaultMessage();
+			} else {
+			gameView.getCardView().setVisible(false);
+			System.out.println("ERROR");
 		}
+	}
+	
+	public void setDefaultMessage() {
+		String message=lower==game.getCurrentHero()?"Player 1 turn":"Player 2 turn";
+		gameView.getDialogue().setText(message);
+	}
+	public String getDefaultMessage() {
+		return defaultMessage;
+	}
+	public void setDialogueTextwithTimer(String s) {
+		gameView.getDialogue().setText(s);
+		 Timer t = new Timer(3000, new ActionListener() {
+
+	            @Override
+	            public void actionPerformed(ActionEvent e) {
+	        		gameView.getDialogue().setText(defaultMessage);
+	            }
+	        });
+	        t.setRepeats(false);
+	        t.start();
+		
+	}
+
+	public void setDialogueText(String s) {
+		gameView.getDialogue().setText(s);
+	}
+
+	public void setDefaultMessage(String defaultMessage) {
+		this.defaultMessage = defaultMessage;
 	}
 
 	private void monitorBurnedCard(Card burned) {
@@ -220,7 +311,7 @@ public class Controller implements GameListener, ActionListener {
 			} catch (NotYourTurnException | NotEnoughManaException | FullFieldException e) {
 //			JOptionPane.showMessageDialog(null, e.getMessage(), "InfoBox: " + "Error",
 //					JOptionPane.INFORMATION_MESSAGE);
-				gameView.setDialogueTextwithTimer(e.getMessage());
+				setDialogueTextwithTimer(e.getMessage());
 
 			}
 		} else if (card instanceof Spell) {
@@ -238,11 +329,12 @@ public class Controller implements GameListener, ActionListener {
 		buildField(lower);
 		buildHand(upper);
 		buildField(upper);
-		modifyMana(lower);
-		modifyMana(upper);
+		modifyHeroPanel(lower);
+		modifyHeroPanel(upper);
 		gameView.revalidate();
 		gameView.repaint();
-	//	gameView.setDialogueText("");
+//		gameView.getCardView().setVisible(false);
+		// gameView.setDialogueText("");
 	}
 
 	private void monitorCard(boolean attack, boolean play, CardButton cb) {

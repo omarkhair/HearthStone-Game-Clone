@@ -8,6 +8,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.Timer;
 
+import controller.Controller;
+
 @SuppressWarnings("serial")
 public class GameView extends JFrame{
 	private JPanel field;              //kol eli 3al yemeen
@@ -34,7 +36,6 @@ public class GameView extends JFrame{
 	private JPanel middlePanel;
 	private JButton endTurn;
 	private JLabel dialogue;
-	
 	
 	 
 //	private ArrayList<Card> hero1Hand;
@@ -91,22 +92,7 @@ public class GameView extends JFrame{
 	}
 	
 		
-	public void setDialogueTextwithTimer(String s) {
-		dialogue.setText(s);
-		 Timer t = new Timer(5000, new ActionListener() {
-
-	            @Override
-	            public void actionPerformed(ActionEvent e) {
-	                dialogue.setText(null);
-	            }
-	        });
-	        t.setRepeats(false);
-	        t.start();
-		
-	}
-	public void setDialogueText(String s) {
-		dialogue.setText(s);
-	}
+	
 	private void buildPanels() {
 		cardView=new CardInfoPanel();
 		add(cardView,BorderLayout.WEST);

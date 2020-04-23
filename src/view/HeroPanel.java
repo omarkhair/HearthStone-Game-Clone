@@ -12,7 +12,7 @@ public class HeroPanel extends JPanel{
 	private JButton heroPower;
 	private JLabel heroType;
 	private JProgressBar manaBar;
-	
+	private JProgressBar health;
 	public HeroPanel() {
 		super();
 		setPreferredSize(new Dimension(300,400));
@@ -34,13 +34,19 @@ public class HeroPanel extends JPanel{
 		heroType.setPreferredSize(new Dimension (200,50));
 		heroPower = new JButton("Hero Power");
 		heroPower.setFont(new Font("Traditional serif", Font.BOLD, 20) );
-		heroPower.setPreferredSize(new Dimension (200,100));
+		heroPower.setPreferredSize(new Dimension (200,50));
 		manaBar=new JProgressBar();
 		manaBar.setPreferredSize(new Dimension(200,50));
 		manaBar.setValue(0);
 		manaBar.setString("");
 		manaBar.setFont(f);
 		manaBar.setStringPainted(true);
+		health=new JProgressBar();
+		health.setPreferredSize(new Dimension(200,50));
+		health.setValue(0);
+		health.setString("");
+		health.setFont(f);
+		health.setStringPainted(true);
 		c.gridx=0;
 		c.gridy=0;
 		add(heroImage,c);
@@ -49,6 +55,8 @@ public class HeroPanel extends JPanel{
 		c.gridy=2;
 		add(heroPower,c);
 		c.gridy=3;
+		add(health,c);
+		c.gridy=4;
 		add(manaBar,c);
 		
 	}
@@ -56,6 +64,16 @@ public class HeroPanel extends JPanel{
 	
 	
 	
+
+	public JProgressBar getHealth() {
+		return health;
+	}
+
+	public void setHealth(JProgressBar health) {
+		this.health = health;
+	}
+
+
 	public JLabel getHeroImage() {
 		return heroImage;
 	}
