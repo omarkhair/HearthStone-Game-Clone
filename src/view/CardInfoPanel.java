@@ -16,23 +16,26 @@ public class CardInfoPanel extends JPanel {
 	private JButton play;
 	private Card card;
 	private CardButton cardButton;
-	
+	private int width;
+	private int height;
 	
 
 
-	public CardInfoPanel() {
+	public CardInfoPanel(int twidth,int theight) {
 		super();
+		this.width=twidth/5;
+		this.height=theight;
 		setVisible(false);
 		setLayout(new GridBagLayout());
-		setPreferredSize(new Dimension(300, 900));
+		setPreferredSize(new Dimension(width, height));
 		setBackground(Color.cyan);
 		GridBagConstraints c = new GridBagConstraints();
 		cardName = new JLabel();
-		cardName.setPreferredSize(new Dimension(250,100));
+		cardName.setPreferredSize(new Dimension(width*4/5,height*5/66));
 		cardName.setFont(new Font("Traditional serif", Font.BOLD, 35));
 		cardName.setHorizontalAlignment(JLabel.CENTER);
 		cardImage = new JLabel();
-		cardImage.setPreferredSize(new Dimension(250, 360));
+		cardImage.setPreferredSize(new Dimension(width*9/10, height*4/10));
 		cardInfo = new JTextArea(5,15);
 		JScrollPane scrollPane = new JScrollPane(cardInfo);
 		scrollPane.getVerticalScrollBar().setValue(0);
@@ -44,12 +47,12 @@ public class CardInfoPanel extends JPanel {
 		attack=new JButton();
 		//attack.setFont(new Font("Traditional serif", Font.BOLD, 50) );
 		attack.setText("Attack");
-		attack.setPreferredSize(new Dimension(250,100));
+		attack.setPreferredSize(new Dimension(width*4/5,height*5/66));
 		play=new JButton("Play");
 		//play.setBorder(new LineBorder(Color.green,12));
 		
 		//play.setFont(new Font("Traditional serif", Font.BOLD, 50) );
-		play.setPreferredSize(new Dimension(250,100));
+		play.setPreferredSize(new Dimension(width*4/5,height*5/66));
 		c.gridx=0;
 		c.gridy=0;
 		add(cardImage,c);

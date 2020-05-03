@@ -13,9 +13,15 @@ public class HeroPanel extends JPanel{
 	private JLabel heroType;
 	private JProgressBar manaBar;
 	private JProgressBar health;
-	public HeroPanel() {
+	
+	private int width;
+	private int height;
+	
+	public HeroPanel(int twidth,int theight) {
 		super();
-		setPreferredSize(new Dimension(300,400));
+		this.width=twidth/5;
+		this.height=theight*5/11;
+		setPreferredSize(new Dimension(width,height));
 		setLayout(new GridBagLayout());
 		setBackground(Color.green);
 		GridBagConstraints c = new GridBagConstraints();
@@ -26,23 +32,25 @@ public class HeroPanel extends JPanel{
 //				getClass().getResource("images/Fire_Mage_Jaina.png"))
 //				.getImage()
 //				.getScaledInstance(200, 200, Image.SCALE_SMOOTH)));
-		heroImage.setPreferredSize(new Dimension (200,200));
+		heroImage.setPreferredSize(new Dimension (width*4/5,height/2));
 		heroType = new JLabel();
 		Font f=new Font("Traditional serif", Font.BOLD, 45) ;
 		heroType.setFont(f);
 		heroType.setHorizontalAlignment(JLabel.CENTER);
-		heroType.setPreferredSize(new Dimension (200,50));
-		heroPower = new JButton("Hero Power");
+		heroType.setPreferredSize(new Dimension (width*4/5,height/8));
+		heroPower = new JButton();
+		heroPower.setActionCommand("Hero Power");
+		heroPower.setHorizontalAlignment(JButton.CENTER);
 		heroPower.setFont(new Font("Traditional serif", Font.BOLD, 20) );
-		heroPower.setPreferredSize(new Dimension (200,50));
+		heroPower.setPreferredSize(new Dimension (width*3/5,height/8));
 		manaBar=new JProgressBar();
-		manaBar.setPreferredSize(new Dimension(200,50));
+		manaBar.setPreferredSize(new Dimension(width/2,height/8));
 		manaBar.setValue(0);
 		manaBar.setString("");
 		manaBar.setFont(f);
 		manaBar.setStringPainted(true);
 		health=new JProgressBar();
-		health.setPreferredSize(new Dimension(200,50));
+		health.setPreferredSize(new Dimension(width*4/5,height/8));
 		health.setValue(0);
 		health.setString("");
 		health.setFont(f);
@@ -58,7 +66,6 @@ public class HeroPanel extends JPanel{
 		add(health,c);
 		c.gridy=4;
 		add(manaBar,c);
-		
 	}
 	
 	

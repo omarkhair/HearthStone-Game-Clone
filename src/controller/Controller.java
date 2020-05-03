@@ -10,6 +10,7 @@ import java.util.*;
 
 import javax.swing.*;
 import javax.swing.Timer;
+import javax.swing.plaf.ToolTipUI;
 
 import engine.*;
 import exceptions.*;
@@ -34,7 +35,7 @@ public class Controller implements GameListener, ActionListener {
 	private boolean onAttackMode;
 	private boolean spellOnMinion;
 	private boolean spellOnHero;
-	private Card card;
+	private boolean onHeroPower;
 
 	public Controller(Hero h1, Hero h2) {
 		try {
@@ -45,11 +46,13 @@ public class Controller implements GameListener, ActionListener {
 		}
 		lower = game.getCurrentHero();
 		upper = game.getOpponent();
-
+		
 		gameView = new GameView();
 		gameView.getCardView().getPlay().addActionListener(this);
 		gameView.getCardView().getAttack().addActionListener(this);
 		gameView.getEndTurn().addActionListener(this);
+		
+	//	System.out.println(gameView.getUpperHero().getHeroImage().getp);
 
 		modifyHeroPanel(lower);
 		modifyHeroPanel(upper);
@@ -63,11 +66,16 @@ public class Controller implements GameListener, ActionListener {
 		gameView.revalidate();
 		gameView.repaint();
 		onAttackMode = false;
-		spellOnMinion=false;
-		spellOnHero=false;
+		spellOnMinion = false;
+		spellOnHero = false;
+		onHeroPower = false;
 		heroImageAction(lower);
 		heroImageAction(upper);
 		setDefaultMessage();
+		gameView.getLowerHero().getHeroPower().addActionListener(this);
+		gameView.getUpperHero().getHeroPower().addActionListener(this);
+
+		// gameView.getLowerHero().getHeroPower().setToolTipText("kajdbfwbfiuwbefiuw");
 	}
 
 	private void heroImageAction(Hero hero) {
@@ -83,7 +91,8 @@ public class Controller implements GameListener, ActionListener {
 
 					try {
 						game.getCurrentHero().attackWithMinion(attacker, hero);
-						onAttackMode=false;
+						onAttackMode = false;
+						setDefaultMessage();
 						gameView.getCardView().setVisible(false);
 						rebuildAll();
 					} catch (CannotAttackException | NotYourTurnException | TauntBypassException | NotSummonedException
@@ -91,11 +100,35 @@ public class Controller implements GameListener, ActionListener {
 						setDialogueTextwithTimer(e1.getMessage());
 					}
 
-				}else if (spellOnHero) {
+				} else if (spellOnHero) {
 					HeroTargetSpell spell = (HeroTargetSpell) gameView.getCardView().getCard();
 					try {
 						game.getCurrentHero().castSpell(spell, hero);
+						spellOnHero = false;
+						setDefaultMessage();
+						rebuildAll();
 					} catch (NotYourTurnException | NotEnoughManaException e1) {
+						setDialogueTextwithTimer(e1.getMessage());
+					}
+
+				} else if (onHeroPower) {
+					Hero cur = game.getCurrentHero();
+					try {
+						if (cur instanceof Mage) {
+
+							((Mage) cur).useHeroPower(hero);
+
+							onHeroPower = false;
+							setDefaultMessage();
+							rebuildAll();
+						} else {
+							((Priest) cur).useHeroPower(hero);
+							onHeroPower = false;
+							setDefaultMessage();
+							rebuildAll();
+						}
+					} catch (NotEnoughManaException | HeroPowerAlreadyUsedException | NotYourTurnException
+							| FullHandException | FullFieldException | CloneNotSupportedException e1) {
 						setDialogueTextwithTimer(e1.getMessage());
 					}
 
@@ -112,13 +145,36 @@ public class Controller implements GameListener, ActionListener {
 		} else {
 			hpanel = gameView.getUpperHero();
 		}
+		//TODO
+		int w=gameView.getUpperHero().getHeroImage().getPreferredSize().width;
+		int h=gameView.getUpperHero().getHeroImage().getPreferredSize().height;
+		
 		ImageIcon imageIcon = new ImageIcon(
-				new ImageIcon(pathOfImage(hero)).getImage().getScaledInstance(200, 200, Image.SCALE_DEFAULT));
+				new ImageIcon(pathOfImage(hero)).getImage().getScaledInstance(w,h, Image.SCALE_DEFAULT));
 		hpanel.getHeroImage().setIcon(imageIcon);
 		hpanel.getHeroType().setText(hero.getClass().toString().substring(19));
+		String msg = "";
+		if (hero instanceof Mage) {
+			msg = "<html>" + "Attack (1)" + "<html>";
+		} else if (hero instanceof Hunter) {
+			msg = "<html>" + "Attack Hero (2)" + "<html>";
+		} else if (hero instanceof Paladin) {
+			msg = "<html>" + "SilverHandRecruit" + "<html>";
+		} else if (hero instanceof Priest) {
+			msg = "<html>" + "Heal (2)" + "<html>";
+		} else {
+			msg = "<html>" + "Draw Card" + "<html>";
+		}
+		hpanel.getHeroPower().setText(msg);
+		hpanel.getHeroPower().setHorizontalAlignment(JButton.CENTER);
 		modifyMana(hero);
 		modifyHealth(hero);
-		hpanel.getHeroPower().addActionListener(this);
+
+		if (hero.equals(game.getCurrentHero()) && !hero.isHeroPowerUsed())
+			hpanel.getHeroPower().setEnabled(true);
+		else
+			hpanel.getHeroPower().setEnabled(false);
+
 		// System.out.println(hero.getClass().toString().substring(19));
 	}
 
@@ -157,6 +213,7 @@ public class Controller implements GameListener, ActionListener {
 	private void buildHand(Hero h) {
 		ArrayList<CardButton> heroHand;
 		JPanel panel;
+		boolean currentHero=h==game.getCurrentHero();
 		if (h == lower) {
 			heroHand = hand1;
 			panel = gameView.getLowerHand();
@@ -167,8 +224,14 @@ public class Controller implements GameListener, ActionListener {
 		panel.removeAll();
 		heroHand.clear();
 		for (Card c : h.getHand()) {
+			//TODO
 			CardButton b = new CardButton(c);
-			b.setText(c.getName());
+			if(currentHero) {
+				b.setText(c.getName());
+			}else {
+				ImageIcon i=new ImageIcon(new ImageIcon("images/covered.png").getImage().getScaledInstance(90, 150, Image.SCALE_DEFAULT));
+				b.setIcon(i);
+			}
 			b.addActionListener(this);
 			heroHand.add(b);
 			panel.add(b);
@@ -227,17 +290,43 @@ public class Controller implements GameListener, ActionListener {
 					if (!(cb.getCard() instanceof Minion))
 						throw new InvalidTargetException("You can only cast this spell on opponent field cards");
 					if (inView instanceof MinionTargetSpell) {
-						game.getCurrentHero().castSpell((MinionTargetSpell) inView, (Minion) cb.getCard());
-					}else if(inView instanceof LeechingSpell){
+						if (upper.getField().contains((Minion) cb.getCard())
+								|| lower.getField().contains((Minion) cb.getCard()))
+							game.getCurrentHero().castSpell((MinionTargetSpell) inView, (Minion) cb.getCard());
+						else {
+							throw new InvalidTargetException("You can only cast this spell on field minions");
+						}
+					} else if (inView instanceof LeechingSpell) {
 						game.getCurrentHero().castSpell((LeechingSpell) inView, (Minion) cb.getCard());
 					}
+					rebuildAll();
+					spellOnMinion = false;
+					setDefaultMessage();
+					gameView.getCardView().setVisible(false);
 				} catch (NotYourTurnException | NotEnoughManaException | InvalidTargetException e1) {
 					setDialogueTextwithTimer(e1.getMessage());
 				}
-				rebuildAll();
-				spellOnMinion = false;
-				gameView.getCardView().setVisible(false);
 
+			} else if (onHeroPower) {
+				try {
+					Hero cur = game.getCurrentHero();
+					if (!(cb.getCard() instanceof Minion))
+						throw new InvalidTargetException("You can only use this Hero power on Field Minions");
+					if (cur instanceof Mage) {
+
+						((Mage) cur).useHeroPower((Minion) cb.getCard());
+
+					} else {
+						((Priest) cur).useHeroPower((Minion) cb.getCard());
+					}
+					rebuildAll();
+					onHeroPower = false;
+					setDefaultMessage();
+				} catch (NotEnoughManaException | HeroPowerAlreadyUsedException | NotYourTurnException
+						| FullHandException | FullFieldException | CloneNotSupportedException
+						| InvalidTargetException e1) {
+					setDialogueTextwithTimer(e1.getMessage());
+				}
 			} else {
 
 				if (game.getCurrentHero().getHand().contains(cb.getCard())) {
@@ -253,10 +342,17 @@ public class Controller implements GameListener, ActionListener {
 				}
 			}
 		} else if (b.getText().equals("Play")) {
-			Card card = gameView.getCardView().getCard();
-			CardButton cardButton = gameView.getCardView().getCardButton();
-			playCard(card, cardButton);
-			
+			if (spellOnMinion) {
+				spellOnMinion = false;
+				setDefaultMessage();
+			} else if (spellOnHero) {
+				spellOnHero = false;
+				setDefaultMessage();
+			} else {
+				Card card = gameView.getCardView().getCard();
+				CardButton cardButton = gameView.getCardView().getCardButton();
+				playCard(card, cardButton);
+			}
 
 		} else if (b.getText().equals("Attack")) {
 			if (onAttackMode) {
@@ -265,11 +361,17 @@ public class Controller implements GameListener, ActionListener {
 			} else {
 				Card card = gameView.getCardView().getCard();
 				CardButton cardButton = gameView.getCardView().getCardButton();
-				defaultMessage = "Choose a Minion or Hero to attack";
-				setDialogueText(defaultMessage);
-				onAttackMode = true;
+				if (((Minion) card).isAttacked())
+					setDialogueTextwithTimer("This minion has attacked before!");
+				else if (((Minion) card).isSleeping())
+					setDialogueTextwithTimer("Give this minion a turn to get ready!");
+				else {
+					defaultMessage = "Choose a Minion or Hero to attack";
+					setDialogueText(defaultMessage);
+					onAttackMode = true;
+				}
 			}
-		} else if (b.getText().equals("End Turn")) {
+		} else if (b.getActionCommand().equals("End Turn")) {
 			boolean burned = false;
 
 			try {
@@ -282,16 +384,39 @@ public class Controller implements GameListener, ActionListener {
 				System.out.println("ayhabal");
 			}
 			onAttackMode = false;
+			spellOnHero = false;
+			spellOnMinion = false;
 			setDefaultMessage();
 			rebuildAll();
 			if (burned)
 				gameView.getCardView().setVisible(true);
 			else
 				gameView.getCardView().setVisible(false);
-		} else if (b.getText().equals("Hero Power")) {
+		} else if (b.getActionCommand().equals("Hero Power")) {
 			gameView.getCardView().setVisible(false);
 			onAttackMode = false;
+			spellOnHero = false;
+			spellOnMinion = false;
 			setDefaultMessage();
+			Hero cur = game.getCurrentHero();
+			try {
+				if (cur instanceof Hunter || cur instanceof Warlock || cur instanceof Paladin) {
+
+					cur.useHeroPower();
+
+				} else {
+					onHeroPower = true;
+					defaultMessage = "Choose a Minion or Hero";
+					setDialogueText(defaultMessage);
+				}
+				rebuildAll();
+
+			} catch (NotEnoughManaException | HeroPowerAlreadyUsedException | NotYourTurnException | FullHandException
+					| FullFieldException | CloneNotSupportedException e1) {
+
+				setDialogueTextwithTimer(e1.getMessage());
+			}
+
 		} else {
 			gameView.getCardView().setVisible(false);
 			System.out.println("ERROR");
@@ -341,6 +466,7 @@ public class Controller implements GameListener, ActionListener {
 			try {
 				game.getCurrentHero().playMinion((Minion) card);
 				gameView.getCardView().setVisible(false);
+				rebuildAll();
 			} catch (NotYourTurnException | NotEnoughManaException | FullFieldException e) {
 //			JOptionPane.showMessageDialog(null, e.getMessage(), "InfoBox: " + "Error",
 //					JOptionPane.INFORMATION_MESSAGE);
@@ -348,21 +474,35 @@ public class Controller implements GameListener, ActionListener {
 
 			}
 		} else if (card instanceof Spell) {
-			if (card instanceof FieldSpell) {
-				// game.getCurrentHero().castSpell((FieldSpell)card);
-			} else if (card instanceof MinionTargetSpell) {
-				spellOnMinion = true;
-			} else if (card instanceof LeechingSpell) {
-				spellOnMinion = true;
-			} else if (card instanceof HeroTargetSpell) {
-				spellOnHero=true;
-			} else if (card instanceof AOESpell) {
-				//game.getCurrentHero().castSpell((AOESpell)card,game.getOpponent().getField());
+			try {
+				game.validateManaCost(card);
+				if (card instanceof FieldSpell) {
+					game.getCurrentHero().castSpell((FieldSpell) card);
+				} else if (card instanceof MinionTargetSpell) {
+					spellOnMinion = true;
+					defaultMessage = "Choose a Minion to cast the spell";
+					setDialogueText(defaultMessage);
+				} else if (card instanceof LeechingSpell) {
+					spellOnMinion = true;
+					defaultMessage = "Choose a Minion to cast the spell";
+					setDialogueText(defaultMessage);
+				} else if (card instanceof HeroTargetSpell) {
+					spellOnHero = true;
+					defaultMessage = "Choose a Hero to cast the spell";
+					setDialogueText(defaultMessage);
+				} else if (card instanceof AOESpell) {
+					game.getCurrentHero().castSpell((AOESpell) card, game.getOpponent().getField());
+				}
+				gameView.getCardView().setVisible(false);
+				rebuildAll();
+			} catch (NotYourTurnException | NotEnoughManaException e) {
+				setDialogueTextwithTimer(e.getMessage());
+
 			}
+
 		} else {
 			System.out.println("neither minion nor spell");
 		}
-		rebuildAll();
 
 	}
 
@@ -391,8 +531,10 @@ public class Controller implements GameListener, ActionListener {
 		gameView.getCardView().getCardName().setText("<html>" + c.getName() + "<html>");
 		gameView.getCardView().getCardInfo().setText(c.toString());
 		gameView.getCardView().getCardInfo().setCaretPosition(0);
+		int w=gameView.getCardView().getCardImage().getPreferredSize().width;
+		int h=gameView.getCardView().getCardImage().getPreferredSize().height;
 		ImageIcon imageIcon = new ImageIcon(
-				new ImageIcon(pathofcardImage(c)).getImage().getScaledInstance(250, 300, Image.SCALE_DEFAULT));
+				new ImageIcon(pathofcardImage(c)).getImage().getScaledInstance(w, h, Image.SCALE_DEFAULT));
 		gameView.getCardView().getCardImage().setIcon(imageIcon);
 	}
 
