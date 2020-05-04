@@ -49,7 +49,7 @@ public class HeroSelectionView extends JFrame implements ActionListener{
 		
 		startGame=new JButton();
 		startGame.addActionListener(this);
-		ImageIcon i = new ImageIcon(new ImageIcon("images/start.png").getImage().getScaledInstance(width / 10, width/10,
+		ImageIcon i = new ImageIcon(new ImageIcon("images/design/SelectionPlay.png").getImage().getScaledInstance(width / 10, width/10,
 				Image.SCALE_DEFAULT));
 		startGame.setIcon(i);
 		startGame.setContentAreaFilled(false);

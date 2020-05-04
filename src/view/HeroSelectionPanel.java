@@ -38,7 +38,7 @@ public class HeroSelectionPanel extends JPanel implements ActionListener {
 		backGround = new JLabel();
 		backGround.setLocation(0, 0);
 		backGround.setSize(new Dimension(width / 2, height));
-		ImageIcon i = new ImageIcon(new ImageIcon("images/Magebg.jpg").getImage().getScaledInstance(width / 2, height,
+		ImageIcon i = new ImageIcon(new ImageIcon("images/Selection/Magebg.jpg").getImage().getScaledInstance(width / 2, height,
 				Image.SCALE_DEFAULT));
 		backGround.setIcon(i);
 		add(backGround);
@@ -52,11 +52,11 @@ public class HeroSelectionPanel extends JPanel implements ActionListener {
 			w += width / 12;
 		}
 
-		createImages("images/Jaina Proudmoore.png", 0);
-		createImages("images/Gul'dan.png", 1);
-		createImages("images/Anduin Wrynn.png", 2);
-		createImages("images/Rexxar.png", 3);
-		createImages("images/Uther Lightbringer.png", 4);
+		createImages("images/Heros/Jaina Proudmoore.png", 0);
+		createImages("images/Heros/Gul'dan.png", 1);
+		createImages("images/Heros/Anduin Wrynn.png", 2);
+		createImages("images/Heros/Rexxar.png", 3);
+		createImages("images/Heros/Uther Lightbringer.png", 4);
 
 		try {
 			chosen = new Mage();
@@ -105,19 +105,19 @@ public class HeroSelectionPanel extends JPanel implements ActionListener {
 		String imagePath = "";
 		try {
 			if (i == 0) {
-				imagePath = "images/Magebg.jpg";
+				imagePath = "images/Selection/Magebg.jpg";
 				chosen = new Mage();
 			} else if (i == 1) {
-				imagePath = "images/Warlockbg.jpg";
+				imagePath = "images/Selection/Warlockbg.jpg";
 				chosen = new Warlock();
 			} else if (i == 2) {
-				imagePath = "images/Priestbg.jpg";
+				imagePath = "images/Selection/Priestbg.jpg";
 				chosen = new Priest();
 			} else if (i == 3) {
-				imagePath = "images/Hunterbg.jpg";
+				imagePath = "images/Selection/Hunterbg.jpg";
 				chosen = new Hunter();
 			} else if (i == 4) {
-				imagePath = "images/Paladinbg.jpg";
+				imagePath = "images/Selection/Paladinbg.jpg";
 				chosen = new Paladin();
 			}
 			ImageIcon image = new ImageIcon(new ImageIcon(imagePath).getImage().getScaledInstance(width / 2, height,

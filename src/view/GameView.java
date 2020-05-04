@@ -3,12 +3,14 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import javax.swing.*;
+import javax.swing.GroupLayout.Alignment;
+
 import model.cards.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.Timer;
 
-import controller.Controller;
+//import controller.Controller;
 
 @SuppressWarnings("serial")
 public class GameView extends JFrame{
@@ -58,7 +60,7 @@ public class GameView extends JFrame{
 		setLocationRelativeTo(null);
 		getContentPane().setLayout(new BorderLayout());
 		middlePanel= new JPanel();
-		middlePanel.setBackground(Color.orange);
+		middlePanel.setBackground(Color.DARK_GRAY);
 		buildPanels();
 		
 		field.add(middlePanel);
@@ -66,7 +68,7 @@ public class GameView extends JFrame{
 		endTurn.setActionCommand("End Turn");
 		endTurn.setPreferredSize(new Dimension(width/5,height/11));
 		
-		ImageIcon i=new ImageIcon(new ImageIcon("images/end turn.png").getImage().getScaledInstance(250, 50, Image.SCALE_DEFAULT));
+		ImageIcon i=new ImageIcon(new ImageIcon("images/design/end turn.png").getImage().getScaledInstance(250, 50, Image.SCALE_DEFAULT));
 		endTurn.setIcon(i);
 		endTurn.setContentAreaFilled(false);
 		endTurn.setFocusPainted(false);
@@ -160,6 +162,7 @@ public class GameView extends JFrame{
 		lCardArea.setLayout(new BorderLayout());
 		
 		lowerHand=new JPanel();
+		lowerHand.setLayout(new FlowLayout(FlowLayout.CENTER, 0, height/22));
 		lowerHand.setPreferredSize(new Dimension(width*3/5,height*5/22));
 		lCardArea.add(lowerHand,BorderLayout.SOUTH);
 		lowerHand.setBackground(Color.MAGENTA);
@@ -169,6 +172,8 @@ public class GameView extends JFrame{
 		uCardArea.setLayout(new BorderLayout());
 		
 		upperHand=new JPanel();
+		upperHand.setLayout(new FlowLayout(FlowLayout.CENTER, 0, height/22));
+		//upperHand.setLayout(new BoxLayout(upperHand, BoxLayout.X_AXIS));
 		upperHand.setPreferredSize(new Dimension(width*3/5,height*5/22));
 		uCardArea.add(upperHand,BorderLayout.NORTH);
 		upperHand.setBackground(Color.MAGENTA);
@@ -176,7 +181,9 @@ public class GameView extends JFrame{
 		upperHand.setAlignmentY(CENTER_ALIGNMENT);
 		
 		
+		
 		lowerField=new JPanel();
+		lowerField.setLayout(new FlowLayout(FlowLayout.CENTER, 0, height/8-height*3/44));
 		lowerField.setPreferredSize(new Dimension(width*3/5,height*1/4));
 		lCardArea.add(lowerField,BorderLayout.NORTH);
 		lowerField.setBackground(Color.black);
@@ -186,6 +193,7 @@ public class GameView extends JFrame{
 		
 			
 		upperField=new JPanel();
+		upperField.setLayout(new FlowLayout(FlowLayout.CENTER, 0, height/8-height*3/44));
 		upperField.setPreferredSize(new Dimension(width*3/5,height*1/4));
 		uCardArea.add(upperField,BorderLayout.SOUTH);
 		upperField.setBackground(Color.black);
@@ -317,6 +325,18 @@ public class GameView extends JFrame{
 
 	public void setDialogue(JLabel dialogue) {
 		this.dialogue = dialogue;
+	}
+
+
+
+	public int getWidth() {
+		return width;
+	}
+
+
+
+	public int getHeight() {
+		return height;
 	}
 	
 	

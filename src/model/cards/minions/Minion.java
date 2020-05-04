@@ -135,16 +135,16 @@ public class Minion extends Card implements Cloneable {
 	public String toString() {
 		
 		String s= super.toString();
-		s+="\nHealth Points: "+currentHP+"/"+maxHP;
-		s+="\nAttack: "+attack;
+		s+="<br>Health Points: "+currentHP+"/"+maxHP;
+		s+="<br>Attack: "+attack;
 		String s2="";
-		s2+="\nABILITIES: ";
+		s2+="<br>ABILITIES: ";
 		if(taunt)
-			s2+="\nTaunt";
+			s2+="<br>Taunt";
 		if(divine)
-			s2+="\nDivine Shield";
+			s2+="<br>Divine Shield";
 		if(charge)
-			s2+="\nCharge";
+			s2+="<br>Charge";
 		if(charge||divine||taunt)
 			s+=s2;
 		return s;

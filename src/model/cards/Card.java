@@ -39,7 +39,7 @@ public abstract class Card implements Cloneable {
 		return (Card) super.clone();
 	}
 	public String toString() {
-		return "Mana Cost: "+manaCost+"\nRarity: "+rarity;
+		return "Mana Cost: "+manaCost+"<br>Rarity: "+rarity;
 	}
 
 }

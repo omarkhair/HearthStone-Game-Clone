@@ -10,19 +10,34 @@ import model.cards.Card;
 
 public class CardButton extends JButton{
 	private Card card;
-	public CardButton() {
-		setPreferredSize(new Dimension(90,150));
+	private int w;
+	private int h;
+	public CardButton(int tw,int th) {
+		w=tw*3/55;
+		h=th*3/22;
+		setPreferredSize(new Dimension(w,h));
+		setContentAreaFilled(false);
+		setBorderPainted(false);
 	}
-	public CardButton(Card card) {
-		super();
-		setPreferredSize(new Dimension(90,150));
+	public CardButton(Card card,int tw, int th) {
+		w=tw*3/55;
+		h=th*3/22;
+		setPreferredSize(new Dimension(w,h));
 		this.card = card;
+		setContentAreaFilled(false);
+		//setBorderPainted(false);
 	}
 	public Card getCard() {
 		return card;
 	}
 	public void setCard(Card card) {
 		this.card = card;
+	}
+	public int getW() {
+		return w;
+	}
+	public int getH() {
+		return h;
 	}
 	
 	

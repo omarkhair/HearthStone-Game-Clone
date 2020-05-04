@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.Timer;
 import javax.swing.plaf.ToolTipUI;
 
@@ -37,6 +38,9 @@ public class Controller implements GameListener, ActionListener {
 	private boolean spellOnHero;
 	private boolean onHeroPower;
 
+	private int width;
+	private int height;
+
 	public Controller(Hero h1, Hero h2) {
 		try {
 			game = new Game(h1, h2);
@@ -46,13 +50,16 @@ public class Controller implements GameListener, ActionListener {
 		}
 		lower = game.getCurrentHero();
 		upper = game.getOpponent();
-		
+
 		gameView = new GameView();
 		gameView.getCardView().getPlay().addActionListener(this);
 		gameView.getCardView().getAttack().addActionListener(this);
 		gameView.getEndTurn().addActionListener(this);
-		
-	//	System.out.println(gameView.getUpperHero().getHeroImage().getp);
+
+		width = gameView.getWidth();
+		height = gameView.getHeight();
+
+		// System.out.println(gameView.getUpperHero().getHeroImage().getp);
 
 		modifyHeroPanel(lower);
 		modifyHeroPanel(upper);
@@ -145,14 +152,14 @@ public class Controller implements GameListener, ActionListener {
 		} else {
 			hpanel = gameView.getUpperHero();
 		}
-		//TODO
-		int w=gameView.getUpperHero().getHeroImage().getPreferredSize().width;
-		int h=gameView.getUpperHero().getHeroImage().getPreferredSize().height;
-		
+		// TODO
+		int w = gameView.getUpperHero().getHeroImage().getPreferredSize().width;
+		int h = gameView.getUpperHero().getHeroImage().getPreferredSize().height;
+
 		ImageIcon imageIcon = new ImageIcon(
-				new ImageIcon(pathOfImage(hero)).getImage().getScaledInstance(w,h, Image.SCALE_DEFAULT));
+				new ImageIcon(pathOfImage(hero)).getImage().getScaledInstance(w, h, Image.SCALE_DEFAULT));
 		hpanel.getHeroImage().setIcon(imageIcon);
-		hpanel.getHeroType().setText(hero.getClass().toString().substring(19));
+		hpanel.getHeroType().setText("Cards left:" + hero.getDeck().size());
 		String msg = "";
 		if (hero instanceof Mage) {
 			msg = "<html>" + "Attack (1)" + "<html>";
@@ -179,7 +186,7 @@ public class Controller implements GameListener, ActionListener {
 	}
 
 	private String pathOfImage(Hero hero) {
-		String s = "images/";
+		String s = "images/Heros/";
 		s += hero.getName();
 		s += ".png";
 		// System.out.println(s);
@@ -213,7 +220,7 @@ public class Controller implements GameListener, ActionListener {
 	private void buildHand(Hero h) {
 		ArrayList<CardButton> heroHand;
 		JPanel panel;
-		boolean currentHero=h==game.getCurrentHero();
+		boolean currentHero = h == game.getCurrentHero();
 		if (h == lower) {
 			heroHand = hand1;
 			panel = gameView.getLowerHand();
@@ -224,16 +231,19 @@ public class Controller implements GameListener, ActionListener {
 		panel.removeAll();
 		heroHand.clear();
 		for (Card c : h.getHand()) {
-			//TODO
-			CardButton b = new CardButton(c);
-			if(currentHero) {
-				b.setText(c.getName());
-			}else {
-				ImageIcon i=new ImageIcon(new ImageIcon("images/covered.png").getImage().getScaledInstance(90, 150, Image.SCALE_DEFAULT));
-				b.setIcon(i);
+			// TODO
+			CardButton b = new CardButton(c, width, height);
+			String s = "images/design/covered.png";
+			if (currentHero) {
+				s = pathofcardImage(c);
 			}
+			ImageIcon i = new ImageIcon(
+					new ImageIcon(s).getImage().getScaledInstance(b.getW(), b.getH(), Image.SCALE_DEFAULT));
+			b.setIcon(i);
 			b.addActionListener(this);
 			heroHand.add(b);
+			// b.setAlignmentX(Component.CENTER_ALIGNMENT);
+			// b.setH
 			panel.add(b);
 		}
 	}
@@ -251,8 +261,12 @@ public class Controller implements GameListener, ActionListener {
 		panel.removeAll();
 		heroField.clear();
 		for (Card c : h.getField()) {
-			CardButton b = new CardButton(c);
-			b.setText(c.getName());
+			CardButton b = new CardButton(c, width, height);
+			String s = pathofcardImage(c);
+			ImageIcon i = new ImageIcon(
+					new ImageIcon(s).getImage().getScaledInstance(b.getW(), b.getH(), Image.SCALE_DEFAULT));
+			b.setIcon(i);
+			// b.setText(c.getName());
 			b.addActionListener(this);
 			heroField.add(b);
 			panel.add(b);
@@ -310,7 +324,8 @@ public class Controller implements GameListener, ActionListener {
 			} else if (onHeroPower) {
 				try {
 					Hero cur = game.getCurrentHero();
-					if (!(cb.getCard() instanceof Minion))
+					if (!(cb.getCard() instanceof Minion) || game.getCurrentHero().getHand().contains(cb.getCard())
+							|| game.getOpponent().getHand().contains(cb.getCard()))
 						throw new InvalidTargetException("You can only use this Hero power on Field Minions");
 					if (cur instanceof Mage) {
 
@@ -341,7 +356,7 @@ public class Controller implements GameListener, ActionListener {
 					System.out.println("Error");
 				}
 			}
-		} else if (b.getText().equals("Play")) {
+		} else if (b.getActionCommand().equals("Play")) {
 			if (spellOnMinion) {
 				spellOnMinion = false;
 				setDefaultMessage();
@@ -354,7 +369,7 @@ public class Controller implements GameListener, ActionListener {
 				playCard(card, cardButton);
 			}
 
-		} else if (b.getText().equals("Attack")) {
+		} else if (b.getActionCommand().equals("Attack")) {
 			if (onAttackMode) {
 				onAttackMode = false;
 				setDefaultMessage();
@@ -386,6 +401,7 @@ public class Controller implements GameListener, ActionListener {
 			onAttackMode = false;
 			spellOnHero = false;
 			spellOnMinion = false;
+			onHeroPower = false;
 			setDefaultMessage();
 			rebuildAll();
 			if (burned)
@@ -456,9 +472,10 @@ public class Controller implements GameListener, ActionListener {
 	}
 
 	private void monitorBurnedCard(Card burned) {
-		CardButton cb = new CardButton(burned);
+		CardButton cb = new CardButton(burned, width, height);
 		monitorCard(false, false, cb);
 		gameView.getCardView().setBackground(Color.RED);
+		gameView.getCardView().setBackGroundImage("images/HearthStone Design/BurnedBack.png");
 	}
 
 	private void playCard(Card card, CardButton cardButton) {
@@ -521,7 +538,8 @@ public class Controller implements GameListener, ActionListener {
 
 	private void monitorCard(boolean attack, boolean play, CardButton cb) {
 		gameView.getCardView().setVisible(true);
-		gameView.getCardView().setBackground(Color.cyan);
+		gameView.getCardView().setBackground(Color.black);
+		gameView.getCardView().setBackGroundImage("images/HearthStone Design/CardViewBack.png");
 		Card c = cb.getCard();
 		gameView.getCardView().setCard(c);
 		gameView.getCardView().setCardButton(cb);
@@ -529,10 +547,11 @@ public class Controller implements GameListener, ActionListener {
 		gameView.getCardView().getAttack().setVisible(attack);
 		gameView.getCardView().getPlay().setVisible(play);
 		gameView.getCardView().getCardName().setText("<html>" + c.getName() + "<html>");
-		gameView.getCardView().getCardInfo().setText(c.toString());
-		gameView.getCardView().getCardInfo().setCaretPosition(0);
-		int w=gameView.getCardView().getCardImage().getPreferredSize().width;
-		int h=gameView.getCardView().getCardImage().getPreferredSize().height;
+		// gameView.getCardView().getCardInfo().setText(c.toString());
+		gameView.getCardView().getCardInfo().setText("<html><body>" + c.toString() + "</body></html>");
+		// gameView.getCardView().getCardInfo().setCaretPosition(0);
+		int w = gameView.getCardView().getCardImage().getPreferredSize().width;
+		int h = gameView.getCardView().getCardImage().getPreferredSize().height;
 		ImageIcon imageIcon = new ImageIcon(
 				new ImageIcon(pathofcardImage(c)).getImage().getScaledInstance(w, h, Image.SCALE_DEFAULT));
 		gameView.getCardView().getCardImage().setIcon(imageIcon);
@@ -540,7 +559,10 @@ public class Controller implements GameListener, ActionListener {
 
 	public String pathofcardImage(Card c) {
 		String s = "";
-		s += "images" + "/" + c.getName() + ".png";
+		String name = c.getName();
+		if (name.equals("Shadow Word: Death"))
+			name = "Shadow Word Death";
+		s += "images/Minions/" + name + ".png";
 		// System.out.println(s);
 		return s;
 	}
