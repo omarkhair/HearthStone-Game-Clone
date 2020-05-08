@@ -33,14 +33,22 @@ public class GameView extends JFrame{
 	
 	
 	
-	private JPanel lowerHand;
-	private JPanel upperHand;
-	private JPanel lowerField;
-	private JPanel upperField;
+	private JLabel lowerHand;
+	private JLabel upperHand;
+	private JLabel lowerField;
+	private JLabel upperField;
 	
-	private JPanel middlePanel;
+	private JLabel middlePanel;
 	private JButton endTurn;
 	private JLabel dialogue;
+	
+//	private JPanel lowerFieldPanel;
+//	private JPanel upperFieldPanel;
+//	private JLabel lowerHandBack;
+//	private JLabel upperHandBack;
+//	private JLabel lowerHeroBack;
+//	private JLabel upperHeroBack;
+	
 	
 	 
 //	private ArrayList<Card> hero1Hand;
@@ -49,9 +57,14 @@ public class GameView extends JFrame{
 //	private ArrayList<Card> hero1Hand;
 	
 	public GameView() {
+		
+		
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		width=(int) dim.getWidth();
 		height=(int) dim.getHeight();
+		
+		
+		
 		setExtendedState(JFrame.MAXIMIZED_BOTH); 
 		setUndecorated(true);
 		setVisible(true);
@@ -59,14 +72,14 @@ public class GameView extends JFrame{
 		setSize(width, height);
 		setLocationRelativeTo(null);
 		getContentPane().setLayout(new BorderLayout());
-		middlePanel= new JPanel();
-		middlePanel.setBackground(Color.DARK_GRAY);
-		buildPanels();
 		
-		field.add(middlePanel);
 		endTurn=new JButton();
 		endTurn.setActionCommand("End Turn");
 		endTurn.setPreferredSize(new Dimension(width/5,height/11));
+		
+		buildPanels();
+		
+		
 		
 		ImageIcon i=new ImageIcon(new ImageIcon("images/design/end turn.png").getImage().getScaledInstance(250, 50, Image.SCALE_DEFAULT));
 		endTurn.setIcon(i);
@@ -74,13 +87,6 @@ public class GameView extends JFrame{
 		endTurn.setFocusPainted(false);
 		endTurn.setBorderPainted(false);
 		
-		middlePanel.setLayout(new BorderLayout());
-		middlePanel.add(endTurn, BorderLayout.EAST);
-		dialogue=new JLabel();
-		dialogue.setFont(new Font("Times New Roman", Font.BOLD, 35));
-		dialogue.setForeground(Color.red);
-		dialogue.setHorizontalAlignment(JLabel.CENTER);
-		middlePanel.add(dialogue);
 		
 		
 		
@@ -119,6 +125,13 @@ public class GameView extends JFrame{
 		
 	
 	private void buildPanels() {
+		JLabel bg=new JLabel() ;
+		bg.setSize(new Dimension(width,height));
+		bg.setLocation(0, 0);
+		ImageIcon i2=new ImageIcon(new ImageIcon("images/HearthStone Design/NoCardView.png").getImage().getScaledInstance(width/5, height, Image.SCALE_DEFAULT));
+		bg.setIcon(i2);
+		add(bg);
+		
 		cardView=new CardInfoPanel(width,height);
 		add(cardView,BorderLayout.WEST);
 		
@@ -131,12 +144,12 @@ public class GameView extends JFrame{
 		lowerPanel=new JPanel();
 		lowerPanel.setPreferredSize(new Dimension(width*4/5,height*21/44));
 		field.add(lowerPanel,BorderLayout.SOUTH);
-		lowerPanel.setBackground(Color.blue);
+		lowerPanel.setBackground(Color.black);
 		
 		upperPanel=new JPanel();
 		upperPanel.setPreferredSize(new Dimension(width*4/5,height*21/44));
 		field.add(upperPanel,BorderLayout.NORTH);
-		upperPanel.setBackground(Color.red);
+		upperPanel.setBackground(Color.black);
 		
 		lowerPanel.setLayout(new BorderLayout());
 		
@@ -152,37 +165,46 @@ public class GameView extends JFrame{
 		lCardArea=new JPanel();
 		lCardArea.setPreferredSize(new Dimension(width*3/5,height*21/44));
 		lowerPanel.add(lCardArea,BorderLayout.WEST);
-		lCardArea.setBackground(Color.YELLOW);
+		lCardArea.setBackground(Color.BLACK);
 		
 		uCardArea=new JPanel();
 		uCardArea.setPreferredSize(new Dimension(width*3/5,height*21/44));
 		upperPanel.add(uCardArea,BorderLayout.WEST);
-		uCardArea.setBackground(Color.YELLOW);
+		uCardArea.setBackground(Color.black);
 		
 		lCardArea.setLayout(new BorderLayout());
-		
-		lowerHand=new JPanel();
+		//TODO
+		lowerHand=new JLabel();
+		ImageIcon i = new ImageIcon(
+				new ImageIcon("images/HearthStone Design/LowerHand.png").getImage().getScaledInstance(width*3/5,height*5/22, Image.SCALE_DEFAULT));
+		lowerHand.setIcon(i);
 		lowerHand.setLayout(new FlowLayout(FlowLayout.CENTER, 0, height/22));
 		lowerHand.setPreferredSize(new Dimension(width*3/5,height*5/22));
 		lCardArea.add(lowerHand,BorderLayout.SOUTH);
-		lowerHand.setBackground(Color.MAGENTA);
+		lowerHand.setBackground(Color.black);
 		lowerHand.setAlignmentX(CENTER_ALIGNMENT);
 		lowerHand.setAlignmentY(CENTER_ALIGNMENT);
 		
 		uCardArea.setLayout(new BorderLayout());
 		
-		upperHand=new JPanel();
+		upperHand=new JLabel();
+		 i = new ImageIcon(
+				new ImageIcon("images/HearthStone Design/UpperHand.png").getImage().getScaledInstance(width*3/5,height*5/22, Image.SCALE_DEFAULT));
+		upperHand.setIcon(i);
 		upperHand.setLayout(new FlowLayout(FlowLayout.CENTER, 0, height/22));
 		//upperHand.setLayout(new BoxLayout(upperHand, BoxLayout.X_AXIS));
 		upperHand.setPreferredSize(new Dimension(width*3/5,height*5/22));
 		uCardArea.add(upperHand,BorderLayout.NORTH);
-		upperHand.setBackground(Color.MAGENTA);
+		upperHand.setBackground(Color.black);
 		upperHand.setAlignmentX(CENTER_ALIGNMENT);
 		upperHand.setAlignmentY(CENTER_ALIGNMENT);
 		
 		
 		
-		lowerField=new JPanel();
+		lowerField=new JLabel();
+		i = new ImageIcon(
+				new ImageIcon("images/HearthStone Design/LowerField.png").getImage().getScaledInstance(width*3/5,height/4, Image.SCALE_DEFAULT));
+		lowerField.setIcon(i);
 		lowerField.setLayout(new FlowLayout(FlowLayout.CENTER, 0, height/8-height*3/44));
 		lowerField.setPreferredSize(new Dimension(width*3/5,height*1/4));
 		lCardArea.add(lowerField,BorderLayout.NORTH);
@@ -192,13 +214,33 @@ public class GameView extends JFrame{
 		
 		
 			
-		upperField=new JPanel();
+		upperField=new JLabel();
+		i = new ImageIcon(
+				new ImageIcon("images/HearthStone Design/UpperField.png").getImage().getScaledInstance(width*3/5,height/4, Image.SCALE_DEFAULT));
+		upperField.setIcon(i);
 		upperField.setLayout(new FlowLayout(FlowLayout.CENTER, 0, height/8-height*3/44));
 		upperField.setPreferredSize(new Dimension(width*3/5,height*1/4));
 		uCardArea.add(upperField,BorderLayout.SOUTH);
 		upperField.setBackground(Color.black);
 		upperField.setAlignmentX(CENTER_ALIGNMENT);
 		upperField.setAlignmentY(CENTER_ALIGNMENT);
+		
+		
+		middlePanel= new JLabel();
+		i = new ImageIcon(
+				new ImageIcon("images/HearthStone Design/MessageBar.png").getImage().getScaledInstance(width*4/5,height/22+7, Image.SCALE_DEFAULT));
+		middlePanel.setIcon(i);
+		middlePanel.setBackground(Color.BLACK);
+		field.add(middlePanel);
+		middlePanel.setLayout(new BorderLayout());
+		middlePanel.add(endTurn, BorderLayout.EAST);
+		dialogue=new JLabel();
+		dialogue.setFont(new Font("Times New Roman", Font.BOLD, 27));
+		dialogue.setForeground(Color.lightGray);
+		dialogue.setHorizontalAlignment(JLabel.CENTER);
+		middlePanel.add(dialogue);
+		
+		
 	}
 	public JPanel getLowerPanel() {
 		return lowerPanel;
@@ -224,28 +266,28 @@ public class GameView extends JFrame{
 	public void setUpperHero(HeroPanel upperHero) {
 		this.upperHero = upperHero;
 	}
-	public JPanel getLowerHand() {
+	public JLabel getLowerHand() {
 		return lowerHand;
 	}
-	public void setLowerHand(JPanel lowerHand) {
+	public void setLowerHand(JLabel lowerHand) {
 		this.lowerHand = lowerHand;
 	}
-	public JPanel getUpperHand() {
+	public JLabel getUpperHand() {
 		return upperHand;
 	}
-	public void setUpperHand(JPanel upperHand) {
+	public void setUpperHand(JLabel upperHand) {
 		this.upperHand = upperHand;
 	}
-	public JPanel getLowerField() {
+	public JLabel getLowerField() {
 		return lowerField;
 	}
-	public void setLowerField(JPanel lowerField) {
+	public void setLowerField(JLabel lowerField) {
 		this.lowerField = lowerField;
 	}
-	public JPanel getUpperField() {
+	public JLabel getUpperField() {
 		return upperField;
 	}
-	public void setUpperField(JPanel upperField) {
+	public void setUpperField(JLabel upperField) {
 		this.upperField = upperField;
 	}
 	public CardInfoPanel getCardView() {
@@ -305,13 +347,13 @@ public class GameView extends JFrame{
 
 
 
-	public JPanel getMiddlePanel() {
+	public JLabel getMiddlePanel() {
 		return middlePanel;
 	}
 
 
 
-	public void setMiddlePanel(JPanel middlePanel) {
+	public void setMiddlePanel(JLabel middlePanel) {
 		this.middlePanel = middlePanel;
 	}
 
@@ -338,6 +380,8 @@ public class GameView extends JFrame{
 	public int getHeight() {
 		return height;
 	}
-	
-	
+//	public static void main(String[] args) {
+//		GameView name = new GameView();
+//	}
+
 }

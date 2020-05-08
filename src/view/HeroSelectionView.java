@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 
 import controller.Controller;
@@ -32,12 +33,12 @@ public class HeroSelectionView extends JFrame implements ActionListener{
 		
 		setLayout(null);
 		
-		 JLayeredPane pane = new JLayeredPane();
-		 pane.setLocation(0, 0);
-		 pane.setSize(width, height);
+		JLayeredPane pane = new JLayeredPane();
+		pane.setLocation(0, 0);
+		pane.setSize(width, height);
 
 		add(pane);
-		
+	//	pane.add(
 		left=new HeroSelectionPanel(width, height);
 		left.setLocation(0, 0);
 		//left.setSize(width/2, height);
@@ -56,8 +57,16 @@ public class HeroSelectionView extends JFrame implements ActionListener{
 		startGame.setFocusPainted(false);
 		startGame.setBorderPainted(false);
 		startGame.setSize(new Dimension(width/10,width/10));
-		startGame.setLocation(width/2-startGame.getWidth()/2,height/2-startGame.getHeight()/2);
+		startGame.setLocation(width/2-startGame.getWidth()/2,height/12);
 		pane.add(startGame,2,0);
+		
+		JLabel vs=new JLabel();
+		i = new ImageIcon(new ImageIcon("images/design/vs.png").getImage().getScaledInstance(width/6,height*3/5,
+				Image.SCALE_DEFAULT));
+		vs.setIcon(i);
+		vs.setSize(new Dimension(width/6,height*3/5));
+		vs.setLocation(width/2-vs.getWidth()/2,height/5);
+		pane.add(vs,2,0);
 		
 		revalidate();
 		repaint();

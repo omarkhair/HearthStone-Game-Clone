@@ -44,6 +44,7 @@ public class Controller implements GameListener, ActionListener {
 	public Controller(Hero h1, Hero h2) {
 		try {
 			game = new Game(h1, h2);
+			game.setListener(this);
 		} catch (FullHandException | CloneNotSupportedException e) {
 			// for us
 			System.out.println("inappropriatly catched error");
@@ -147,32 +148,41 @@ public class Controller implements GameListener, ActionListener {
 
 	private void modifyHeroPanel(Hero hero) {
 		HeroPanel hpanel;
+		String s;
 		if (hero == lower) {
 			hpanel = gameView.getLowerHero();
+			s="images/HearthStone Design/LowerHero.png";
 		} else {
 			hpanel = gameView.getUpperHero();
+			s="images/HearthStone Design/UpperHero.png";
 		}
 		// TODO
 		int w = gameView.getUpperHero().getHeroImage().getPreferredSize().width;
 		int h = gameView.getUpperHero().getHeroImage().getPreferredSize().height;
-
+		int w2 = gameView.getUpperHero().getWidth();
+		int h2 = gameView.getUpperHero().getHeight();
+		ImageIcon i = new ImageIcon(new ImageIcon(s).getImage().getScaledInstance(w2, h2, Image.SCALE_DEFAULT));
+		hpanel.getBackGround().setIcon(i);
 		ImageIcon imageIcon = new ImageIcon(
 				new ImageIcon(pathOfImage(hero)).getImage().getScaledInstance(w, h, Image.SCALE_DEFAULT));
 		hpanel.getHeroImage().setIcon(imageIcon);
 		hpanel.getHeroType().setText("Cards left:" + hero.getDeck().size());
-		String msg = "";
+		String icon = "images/HeroPower/";
 		if (hero instanceof Mage) {
-			msg = "<html>" + "Attack (1)" + "<html>";
+			icon += "Mage";
 		} else if (hero instanceof Hunter) {
-			msg = "<html>" + "Attack Hero (2)" + "<html>";
+			icon += "Hunter";
 		} else if (hero instanceof Paladin) {
-			msg = "<html>" + "SilverHandRecruit" + "<html>";
+			icon += "Paladin";
 		} else if (hero instanceof Priest) {
-			msg = "<html>" + "Heal (2)" + "<html>";
+			icon += "Priest";
 		} else {
-			msg = "<html>" + "Draw Card" + "<html>";
+			icon += "Warlock";
 		}
-		hpanel.getHeroPower().setText(msg);
+		i = new ImageIcon(new ImageIcon(icon+".png").getImage().getScaledInstance(h2/4, h2/4, Image.SCALE_DEFAULT));
+		hpanel.getHeroPower().setIcon(i);
+		i = new ImageIcon(new ImageIcon(icon+" Disabled.png").getImage().getScaledInstance(h2/4, h2/4, Image.SCALE_DEFAULT));
+		hpanel.getHeroPower().setDisabledIcon(i);
 		hpanel.getHeroPower().setHorizontalAlignment(JButton.CENTER);
 		modifyMana(hero);
 		modifyHealth(hero);
@@ -219,16 +229,16 @@ public class Controller implements GameListener, ActionListener {
 
 	private void buildHand(Hero h) {
 		ArrayList<CardButton> heroHand;
-		JPanel panel;
+		JLabel back;
 		boolean currentHero = h == game.getCurrentHero();
 		if (h == lower) {
 			heroHand = hand1;
-			panel = gameView.getLowerHand();
+			back = gameView.getLowerHand();
 		} else {
 			heroHand = hand2;
-			panel = gameView.getUpperHand();
+			back = gameView.getUpperHand();
 		}
-		panel.removeAll();
+		back.removeAll();
 		heroHand.clear();
 		for (Card c : h.getHand()) {
 			// TODO
@@ -244,13 +254,13 @@ public class Controller implements GameListener, ActionListener {
 			heroHand.add(b);
 			// b.setAlignmentX(Component.CENTER_ALIGNMENT);
 			// b.setH
-			panel.add(b);
+			back.add(b);
 		}
 	}
 
 	private void buildField(Hero h) {
 		ArrayList<CardButton> heroField;
-		JPanel panel;
+		JLabel panel;
 		if (h == lower) {
 			heroField = field1;
 			panel = gameView.getLowerField();
@@ -273,12 +283,7 @@ public class Controller implements GameListener, ActionListener {
 		}
 	}
 
-	@Override
-	public void onGameOver() {
-		// TODO Auto-generated method stub
-
-	}
-
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Card inView = gameView.getCardView().getCard();
@@ -292,6 +297,8 @@ public class Controller implements GameListener, ActionListener {
 					game.getCurrentHero().attackWithMinion((Minion) inView, (Minion) cb.getCard());
 					rebuildAll();
 					onAttackMode = false;
+					setDefaultMessage();
+					//System.out.println("WHITE");
 					gameView.getCardView().setVisible(false);
 				} catch (CannotAttackException | NotYourTurnException | TauntBypassException | InvalidTargetException
 						| NotSummonedException e1) {
@@ -450,11 +457,13 @@ public class Controller implements GameListener, ActionListener {
 	}
 
 	public void setDialogueTextwithTimer(String s) {
+		gameView.getDialogue().setForeground(Color.red);
 		gameView.getDialogue().setText(s);
 		Timer t = new Timer(3000, new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				gameView.getDialogue().setForeground(Color.lightGray);
 				gameView.getDialogue().setText(defaultMessage);
 			}
 		});
@@ -468,14 +477,8 @@ public class Controller implements GameListener, ActionListener {
 	}
 
 	public void setDefaultMessage(String defaultMessage) {
+		gameView.getDialogue().setForeground(Color.lightGray);
 		this.defaultMessage = defaultMessage;
-	}
-
-	private void monitorBurnedCard(Card burned) {
-		CardButton cb = new CardButton(burned, width, height);
-		monitorCard(false, false, cb);
-		gameView.getCardView().setBackground(Color.RED);
-		gameView.getCardView().setBackGroundImage("images/HearthStone Design/BurnedBack.png");
 	}
 
 	private void playCard(Card card, CardButton cardButton) {
@@ -495,6 +498,7 @@ public class Controller implements GameListener, ActionListener {
 				game.validateManaCost(card);
 				if (card instanceof FieldSpell) {
 					game.getCurrentHero().castSpell((FieldSpell) card);
+					gameView.getCardView().setVisible(false);
 				} else if (card instanceof MinionTargetSpell) {
 					spellOnMinion = true;
 					defaultMessage = "Choose a Minion to cast the spell";
@@ -509,8 +513,9 @@ public class Controller implements GameListener, ActionListener {
 					setDialogueText(defaultMessage);
 				} else if (card instanceof AOESpell) {
 					game.getCurrentHero().castSpell((AOESpell) card, game.getOpponent().getField());
+					gameView.getCardView().setVisible(false);
 				}
-				gameView.getCardView().setVisible(false);
+				
 				rebuildAll();
 			} catch (NotYourTurnException | NotEnoughManaException e) {
 				setDialogueTextwithTimer(e.getMessage());
@@ -537,6 +542,8 @@ public class Controller implements GameListener, ActionListener {
 	}
 
 	private void monitorCard(boolean attack, boolean play, CardButton cb) {
+		gameView.getCardView().getCardInfo().setForeground(Color.LIGHT_GRAY);
+		gameView.getCardView().getCardName().setForeground(Color.lightGray);
 		gameView.getCardView().setVisible(true);
 		gameView.getCardView().setBackground(Color.black);
 		gameView.getCardView().setBackGroundImage("images/HearthStone Design/CardViewBack.png");
@@ -557,6 +564,15 @@ public class Controller implements GameListener, ActionListener {
 		gameView.getCardView().getCardImage().setIcon(imageIcon);
 	}
 
+	private void monitorBurnedCard(Card burned) {
+			CardButton cb = new CardButton(burned, width, height);
+			monitorCard(false, false, cb);
+			gameView.getCardView().setBackground(Color.RED);
+	//		gameView.getCardView().getCardInfo().setForeground(Color.white);
+	//		gameView.getCardView().getCardName().setForeground(Color.white);
+			gameView.getCardView().setBackGroundImage("images/HearthStone Design/BurnedBack.jpg");
+		}
+
 	public String pathofcardImage(Card c) {
 		String s = "";
 		String name = c.getName();
@@ -570,5 +586,19 @@ public class Controller implements GameListener, ActionListener {
 	public static void main(String[] args) throws IOException, CloneNotSupportedException {
 		Controller c = new Controller(new Mage(), new Mage());
 	}
+	@Override
+	public void onGameOver() {
+		if(lower.getCurrentHP()==0) {
+			HeroDeathView heroDeathView=new HeroDeathView(upper,lower,false);
+			gameView.setVisible(false);
+		}else if(upper.getCurrentHP()==0) {
+			HeroDeathView heroDeathView=new HeroDeathView(upper,lower,true);
+			gameView.setVisible(false);
+		}else {
+			System.out.println("ERROR");
+		}
+
+	}
+
 
 }

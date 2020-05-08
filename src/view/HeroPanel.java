@@ -29,13 +29,18 @@ public class HeroPanel extends JPanel{
 		
 		
 		setLayout(null);
+		
+		JLayeredPane pane = new JLayeredPane();
+		pane.setLocation(0, 0);
+		pane.setSize(width, height);
+		add(pane);
+		
+		
 		backGround=new JLabel();
 		backGround.setSize(new Dimension(width,height));
 		backGround.setLayout(new GridBagLayout());
 		backGround.setLocation(0, 0);
-		ImageIcon i = new ImageIcon(new ImageIcon("images/HearthStone Design/CardViewBack.png").getImage().getScaledInstance(width, height, Image.SCALE_DEFAULT));
-		backGround.setIcon(i);
-		add(backGround);
+		pane.add(backGround,1,0);
 		
 		GridBagConstraints c = new GridBagConstraints();
 		//ImageIcon i=new ImageIcon("images/Fire_Mage_Jaina.png");
@@ -46,6 +51,7 @@ public class HeroPanel extends JPanel{
 //				.getImage()
 //				.getScaledInstance(200, 200, Image.SCALE_SMOOTH)));
 		heroImage.setPreferredSize(new Dimension (width*4/5,height/2));
+		
 		deckCards = new JLabel();
 		Font f=new Font("Traditional serif", Font.BOLD, 45) ;
 		Font f2=new Font("Traditional serif", Font.BOLD, 30) ;
@@ -56,7 +62,8 @@ public class HeroPanel extends JPanel{
 		heroPower.setActionCommand("Hero Power");
 		heroPower.setHorizontalAlignment(JButton.CENTER);
 		heroPower.setFont(new Font("Traditional serif", Font.BOLD, 20) );
-		heroPower.setPreferredSize(new Dimension (width*3/5,height/12));
+		heroPower.setSize(new Dimension (height/4,height/4));
+		heroPower.setLocation(width*3/5,height*2/5);
 		manaBar=new JProgressBar();
 		manaBar.setPreferredSize(new Dimension(width/2,height/12));
 		manaBar.setValue(0);
@@ -75,11 +82,16 @@ public class HeroPanel extends JPanel{
 		c.gridy=1;
 		backGround.add(deckCards,c);
 		c.gridy=2;
-		backGround.add(heroPower,c);
-		c.gridy=3;
+//		backGround.add(heroPower,c);
+//		c.gridy=3;
 		backGround.add(health,c);
-		c.gridy=4;
+		c.gridy=3;
 		backGround.add(manaBar,c);
+		pane.add(heroPower,2,0);
+		heroPower.setContentAreaFilled(false);
+		heroPower.setBorderPainted(false);
+		heroPower.setFocusPainted(false);
+		
 	}
 	
 	
@@ -122,11 +134,59 @@ public class HeroPanel extends JPanel{
 
 
 
+	public JLabel getBackGround() {
+		return backGround;
+	}
+
+
+
+
+
+	public void setBackGround(JLabel backGround) {
+		this.backGround = backGround;
+	}
+
+
+
+
+
 	public JProgressBar getManaBar() {
 		return manaBar;
 	}
 	public void setManaBar(JProgressBar mana) {
 		this.manaBar = mana;
+	}
+
+
+
+
+
+	public int getWidth() {
+		return width;
+	}
+
+
+
+
+
+	public void setWidth(int width) {
+		this.width = width;
+	}
+
+
+
+
+
+	public int getHeight() {
+		return height;
+	}
+
+
+
+
+
+	public void setHeight(int height) {
+		this.height = height;
 	}
 	
 	
