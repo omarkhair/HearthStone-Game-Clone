@@ -36,22 +36,22 @@ public class Start extends JFrame implements ActionListener {
 		add(background);
 
 		Start = new JButton(new ImageIcon(new ImageIcon("images/design/start.png").getImage()
-				.getScaledInstance(width / 6, height / 10, Image.SCALE_DEFAULT)));
+				.getScaledInstance(width* 2 / 11, height / 12, Image.SCALE_DEFAULT)));
 		Start.setBorderPainted(false);
 		Start.setContentAreaFilled(false);
 		Start.setFocusPainted(false);
 		Start.addActionListener(this);
 		Start.setActionCommand("START");
-		Start.setBounds(width / 2 - width / 12, height * 8 / 10, width / 6, height / 10);
+		Start.setBounds(width / 2 - width / 11, height * 8 / 10, width* 2/ 11, height / 12);
 
 		Quit = new JButton(new ImageIcon(
-				new ImageIcon("images/design/EXIT.png").getImage().getScaledInstance(250, 250, Image.SCALE_DEFAULT)));
+				new ImageIcon("images/design/EXIT.png").getImage().getScaledInstance(width/7, height/14, Image.SCALE_DEFAULT)));
 		Quit.setBorderPainted(false);
 		Quit.setContentAreaFilled(false);
 		Quit.setFocusPainted(false);
 		Quit.addActionListener(this);
 		Quit.setActionCommand("Quit");
-		Quit.setBounds((int) (0.833 * (dim.width)), (int) (0.787 * (dim.height)), 400, 250);
+		Quit.setBounds(width*33/40,height*18/20, width/7, height/14);
 
 		background.add(Start);
 		background.add(Quit);

@@ -44,7 +44,7 @@ public class HeroSelectionPanel extends JPanel implements ActionListener {
 		add(backGround);
 		heros = new ArrayList<JButton>();
 		int w = width / 24;
-		int h = (int) (height * 0.75);
+		int h = (int) (height * 0.7);
 		for (int k = 0; k < 5; k++) {
 			JButton b = createButton(w, h);
 			heros.add(b);

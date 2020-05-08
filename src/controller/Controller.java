@@ -584,21 +584,19 @@ public class Controller implements GameListener, ActionListener {
 	}
 
 	public static void main(String[] args) throws IOException, CloneNotSupportedException {
-		Controller c = new Controller(new Mage(), new Mage());
+		Controller c = new Controller(new Mage(), new Paladin());
 	}
 	@Override
 	public void onGameOver() {
-		if(lower.getCurrentHP()==0) {
-			HeroDeathView heroDeathView=new HeroDeathView(upper,lower,false);
-			gameView.setVisible(false);
-		}else if(upper.getCurrentHP()==0) {
-			HeroDeathView heroDeathView=new HeroDeathView(upper,lower,true);
-			gameView.setVisible(false);
+		if(lower.getCurrentHP()<=0) {
+			new HeroDeathView(lower,upper,true);
+		}else if(upper.getCurrentHP()<=0) {
+			new HeroDeathView(lower ,upper,false);
+			
 		}else {
 			System.out.println("ERROR");
 		}
-
+		gameView.setVisible(false);
 	}
-
 
 }
