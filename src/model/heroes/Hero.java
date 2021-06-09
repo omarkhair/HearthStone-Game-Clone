@@ -3,6 +3,7 @@ package model.heroes;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import engine.ActionValidator;
@@ -27,7 +28,7 @@ import model.cards.spells.LeechingSpell;
 import model.cards.spells.MinionTargetSpell;
 import model.cards.spells.Spell;
 
-public abstract class Hero implements MinionListener {
+public abstract class Hero implements MinionListener,Serializable {
 	private String name;
 	private int currentHP;
 	private boolean heroPowerUsed;

@@ -5,9 +5,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.Timer;
@@ -40,6 +46,8 @@ public class Controller implements GameListener, ActionListener {
 
 	private int width;
 	private int height;
+
+	private Clip currentClip;
 
 	public Controller(Hero h1, Hero h2) {
 		try {
@@ -82,7 +90,7 @@ public class Controller implements GameListener, ActionListener {
 		setDefaultMessage();
 		gameView.getLowerHero().getHeroPower().addActionListener(this);
 		gameView.getUpperHero().getHeroPower().addActionListener(this);
-
+		sound();
 		// gameView.getLowerHero().getHeroPower().setToolTipText("kajdbfwbfiuwbefiuw");
 	}
 
@@ -99,6 +107,7 @@ public class Controller implements GameListener, ActionListener {
 
 					try {
 						game.getCurrentHero().attackWithMinion(attacker, hero);
+						playSound("sounds/Attack.wav");
 						onAttackMode = false;
 						setDefaultMessage();
 						gameView.getCardView().setVisible(false);
@@ -125,7 +134,7 @@ public class Controller implements GameListener, ActionListener {
 						if (cur instanceof Mage) {
 
 							((Mage) cur).useHeroPower(hero);
-
+							playSound("sounds/Attack.wav");
 							onHeroPower = false;
 							setDefaultMessage();
 							rebuildAll();
@@ -151,10 +160,10 @@ public class Controller implements GameListener, ActionListener {
 		String s;
 		if (hero == lower) {
 			hpanel = gameView.getLowerHero();
-			s="images/HearthStone Design/LowerHero.png";
+			s = "images/design/LowerHero.png";
 		} else {
 			hpanel = gameView.getUpperHero();
-			s="images/HearthStone Design/UpperHero.png";
+			s = "images/design/LowerHero.png";
 		}
 		// TODO
 		int w = gameView.getUpperHero().getHeroImage().getPreferredSize().width;
@@ -179,9 +188,11 @@ public class Controller implements GameListener, ActionListener {
 		} else {
 			icon += "Warlock";
 		}
-		i = new ImageIcon(new ImageIcon(icon+".png").getImage().getScaledInstance(h2/4, h2/4, Image.SCALE_DEFAULT));
+		i = new ImageIcon(
+				new ImageIcon(icon + ".png").getImage().getScaledInstance(h2 / 4, h2 / 4, Image.SCALE_DEFAULT));
 		hpanel.getHeroPower().setIcon(i);
-		i = new ImageIcon(new ImageIcon(icon+" Disabled.png").getImage().getScaledInstance(h2/4, h2/4, Image.SCALE_DEFAULT));
+		i = new ImageIcon(new ImageIcon(icon + " Disabled.png").getImage().getScaledInstance(h2 / 4, h2 / 4,
+				Image.SCALE_DEFAULT));
 		hpanel.getHeroPower().setDisabledIcon(i);
 		hpanel.getHeroPower().setHorizontalAlignment(JButton.CENTER);
 		modifyMana(hero);
@@ -204,27 +215,24 @@ public class Controller implements GameListener, ActionListener {
 	}
 
 	private void modifyMana(Hero hero) {
-		int value = hero.getCurrentManaCrystals();
-		JProgressBar bar;
+		ManaBar bar;
 		if (hero == lower) {
 			bar = gameView.getLowerHero().getManaBar();
 		} else {
 			bar = gameView.getUpperHero().getManaBar();
 		}
-		bar.setValue(value * 10);
-		bar.setString(value + "/" + hero.getTotalManaCrystals());
+		bar.setMana(hero.getCurrentManaCrystals(), hero.getTotalManaCrystals());
 	}
 
 	private void modifyHealth(Hero hero) {
 		int value = hero.getCurrentHP();
-		JProgressBar bar;
+		HealthBar bar;
 		if (hero == lower) {
 			bar = gameView.getLowerHero().getHealth();
 		} else {
 			bar = gameView.getUpperHero().getHealth();
 		}
-		bar.setValue((int) (value * 100.0 / 30.0));
-		bar.setString(value + "/30");
+		bar.setHealth(value);
 	}
 
 	private void buildHand(Hero h) {
@@ -283,7 +291,6 @@ public class Controller implements GameListener, ActionListener {
 		}
 	}
 
-	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Card inView = gameView.getCardView().getCard();
@@ -295,10 +302,11 @@ public class Controller implements GameListener, ActionListener {
 					if (!(cb.getCard() instanceof Minion))
 						throw new InvalidTargetException("You can only attack opponent field cards or hero");
 					game.getCurrentHero().attackWithMinion((Minion) inView, (Minion) cb.getCard());
+					playSound("sounds/Attack.wav");
 					rebuildAll();
 					onAttackMode = false;
 					setDefaultMessage();
-					//System.out.println("WHITE");
+					// System.out.println("WHITE");
 					gameView.getCardView().setVisible(false);
 				} catch (CannotAttackException | NotYourTurnException | TauntBypassException | InvalidTargetException
 						| NotSummonedException e1) {
@@ -337,7 +345,7 @@ public class Controller implements GameListener, ActionListener {
 					if (cur instanceof Mage) {
 
 						((Mage) cur).useHeroPower((Minion) cb.getCard());
-
+						playSound("sounds/Attack.wav");
 					} else {
 						((Priest) cur).useHeroPower((Minion) cb.getCard());
 					}
@@ -364,16 +372,15 @@ public class Controller implements GameListener, ActionListener {
 				}
 			}
 		} else if (b.getActionCommand().equals("Play")) {
-			if (spellOnMinion) {
+			if (spellOnMinion || spellOnHero) {
 				spellOnMinion = false;
-				setDefaultMessage();
-			} else if (spellOnHero) {
 				spellOnHero = false;
 				setDefaultMessage();
 			} else {
 				Card card = gameView.getCardView().getCard();
 				CardButton cardButton = gameView.getCardView().getCardButton();
 				playCard(card, cardButton);
+				playSound("sounds/playcard.wav");
 			}
 
 		} else if (b.getActionCommand().equals("Attack")) {
@@ -397,6 +404,7 @@ public class Controller implements GameListener, ActionListener {
 			boolean burned = false;
 
 			try {
+				playSound("sounds/EndTurn.wav");
 				game.endTurn();
 
 			} catch (FullHandException e1) {
@@ -428,9 +436,13 @@ public class Controller implements GameListener, ActionListener {
 					cur.useHeroPower();
 
 				} else {
-					onHeroPower = true;
-					defaultMessage = "Choose a Minion or Hero";
-					setDialogueText(defaultMessage);
+					if (onHeroPower)
+						onHeroPower = false;
+					else {
+						onHeroPower = true;
+						defaultMessage = "Choose a Minion or Hero";
+						setDialogueText(defaultMessage);
+					}
 				}
 				rebuildAll();
 
@@ -499,6 +511,11 @@ public class Controller implements GameListener, ActionListener {
 				if (card instanceof FieldSpell) {
 					game.getCurrentHero().castSpell((FieldSpell) card);
 					gameView.getCardView().setVisible(false);
+				} else if (card instanceof MinionTargetSpell && card instanceof HeroTargetSpell) {
+					spellOnMinion = true;
+					spellOnHero = true;
+					defaultMessage = "Choose a Minion or Hero to cast the spell";
+					setDialogueText(defaultMessage);
 				} else if (card instanceof MinionTargetSpell) {
 					spellOnMinion = true;
 					defaultMessage = "Choose a Minion to cast the spell";
@@ -515,8 +532,10 @@ public class Controller implements GameListener, ActionListener {
 					game.getCurrentHero().castSpell((AOESpell) card, game.getOpponent().getField());
 					gameView.getCardView().setVisible(false);
 				}
-				
 				rebuildAll();
+				if (card instanceof MinionTargetSpell || card instanceof HeroTargetSpell
+						|| card instanceof LeechingSpell)
+					gameView.getCardView().setVisible(true);
 			} catch (NotYourTurnException | NotEnoughManaException e) {
 				setDialogueTextwithTimer(e.getMessage());
 
@@ -546,7 +565,7 @@ public class Controller implements GameListener, ActionListener {
 		gameView.getCardView().getCardName().setForeground(Color.lightGray);
 		gameView.getCardView().setVisible(true);
 		gameView.getCardView().setBackground(Color.black);
-		gameView.getCardView().setBackGroundImage("images/HearthStone Design/CardViewBack.png");
+		gameView.getCardView().setBackGroundImage("images/design/CardViewBack.png");
 		Card c = cb.getCard();
 		gameView.getCardView().setCard(c);
 		gameView.getCardView().setCardButton(cb);
@@ -565,13 +584,13 @@ public class Controller implements GameListener, ActionListener {
 	}
 
 	private void monitorBurnedCard(Card burned) {
-			CardButton cb = new CardButton(burned, width, height);
-			monitorCard(false, false, cb);
-			gameView.getCardView().setBackground(Color.RED);
-	//		gameView.getCardView().getCardInfo().setForeground(Color.white);
-	//		gameView.getCardView().getCardName().setForeground(Color.white);
-			gameView.getCardView().setBackGroundImage("images/HearthStone Design/BurnedBack.jpg");
-		}
+		CardButton cb = new CardButton(burned, width, height);
+		monitorCard(false, false, cb);
+		gameView.getCardView().setBackground(Color.RED);
+		// gameView.getCardView().getCardInfo().setForeground(Color.white);
+		// gameView.getCardView().getCardName().setForeground(Color.white);
+		gameView.getCardView().setBackGroundImage("images/design/BurnedBack.jpg");
+	}
 
 	public String pathofcardImage(Card c) {
 		String s = "";
@@ -584,19 +603,65 @@ public class Controller implements GameListener, ActionListener {
 	}
 
 	public static void main(String[] args) throws IOException, CloneNotSupportedException {
-		Controller c = new Controller(new Mage(), new Paladin());
+		Controller c = new Controller(new Mage(), new Priest());
 	}
+
 	@Override
 	public void onGameOver() {
-		if(lower.getCurrentHP()<=0) {
-			new HeroDeathView(lower,upper,true);
-		}else if(upper.getCurrentHP()<=0) {
-			new HeroDeathView(lower ,upper,false);
-			
-		}else {
+		if (lower.getCurrentHP() <= 0) {
+			new HeroDeathView(lower, upper, true);
+		} else if (upper.getCurrentHP() <= 0) {
+			new HeroDeathView(lower, upper, false);
+		} else {
 			System.out.println("ERROR");
 		}
 		gameView.setVisible(false);
+		currentClip.stop();
+	}
+
+	private Clip playSound(String s) {
+		AudioInputStream audioInputStream;
+		try {
+			audioInputStream = AudioSystem.getAudioInputStream(new File(s).getAbsoluteFile());
+
+			Clip clip = AudioSystem.getClip();
+			clip.open(audioInputStream);
+			clip.start();
+			return clip;
+		} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+			System.out.println("Error");
+		}
+		return null;
+	}
+
+	private void sound() {
+		currentClip = playSound("sounds/gameAudioBegin.wav");
+		Timer timer = new Timer(76110, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent ae) {
+				if (gameView.isVisible())
+					repeatSound();
+			}
+
+		});
+		timer.setRepeats(false);
+		timer.start();
+
+		// currentClip.addLineListener(listener);
+
+	}
+
+	private void repeatSound() {
+		currentClip = playSound("sounds/gameAudio.wav");
+		currentClip.loop(Clip.LOOP_CONTINUOUSLY);
+	}
+
+	public GameView getGameView() {
+		return gameView;
+	}
+
+	public void setGameView(GameView gameView) {
+		this.gameView = gameView;
 	}
 
 }

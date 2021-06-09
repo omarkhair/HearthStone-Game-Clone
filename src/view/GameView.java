@@ -1,13 +1,26 @@
 package view;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.GroupLayout.Alignment;
-
-import model.cards.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.Timer;
 
 //import controller.Controller;
@@ -41,6 +54,7 @@ public class GameView extends JFrame{
 	private JLabel middlePanel;
 	private JButton endTurn;
 	private JLabel dialogue;
+
 	
 //	private JPanel lowerFieldPanel;
 //	private JPanel upperFieldPanel;
@@ -86,8 +100,8 @@ public class GameView extends JFrame{
 		endTurn.setContentAreaFilled(false);
 		endTurn.setFocusPainted(false);
 		endTurn.setBorderPainted(false);
-		
-		
+		i=new ImageIcon(new ImageIcon("images/design/End_Turn_Disabled.png").getImage().getScaledInstance(250, 50, Image.SCALE_DEFAULT));
+        endTurn.setDisabledIcon(i);		
 		
 		
 	//	lowerHeroType.setPreferredSize(new Dimension);
@@ -128,7 +142,7 @@ public class GameView extends JFrame{
 		JLabel bg=new JLabel() ;
 		bg.setSize(new Dimension(width,height));
 		bg.setLocation(0, 0);
-		ImageIcon i2=new ImageIcon(new ImageIcon("images/HearthStone Design/NoCardView.png").getImage().getScaledInstance(width/5, height, Image.SCALE_DEFAULT));
+		ImageIcon i2=new ImageIcon(new ImageIcon("images/design/BackGround.jpg").getImage().getScaledInstance(width, height, Image.SCALE_DEFAULT));
 		bg.setIcon(i2);
 		add(bg);
 		
@@ -176,7 +190,7 @@ public class GameView extends JFrame{
 		//TODO
 		lowerHand=new JLabel();
 		ImageIcon i = new ImageIcon(
-				new ImageIcon("images/HearthStone Design/LowerHand.png").getImage().getScaledInstance(width*3/5,height*5/22, Image.SCALE_DEFAULT));
+				new ImageIcon("images/design/LowerHand.png").getImage().getScaledInstance(width*3/5,height*5/22, Image.SCALE_DEFAULT));
 		lowerHand.setIcon(i);
 		lowerHand.setLayout(new FlowLayout(FlowLayout.CENTER, 0, height/22));
 		lowerHand.setPreferredSize(new Dimension(width*3/5,height*5/22));
@@ -189,7 +203,7 @@ public class GameView extends JFrame{
 		
 		upperHand=new JLabel();
 		 i = new ImageIcon(
-				new ImageIcon("images/HearthStone Design/UpperHand.png").getImage().getScaledInstance(width*3/5,height*5/22, Image.SCALE_DEFAULT));
+				new ImageIcon("images/design/UpperHand.png").getImage().getScaledInstance(width*3/5,height*5/22, Image.SCALE_DEFAULT));
 		upperHand.setIcon(i);
 		upperHand.setLayout(new FlowLayout(FlowLayout.CENTER, 0, height/22));
 		//upperHand.setLayout(new BoxLayout(upperHand, BoxLayout.X_AXIS));
@@ -203,7 +217,7 @@ public class GameView extends JFrame{
 		
 		lowerField=new JLabel();
 		i = new ImageIcon(
-				new ImageIcon("images/HearthStone Design/LowerField.png").getImage().getScaledInstance(width*3/5,height/4, Image.SCALE_DEFAULT));
+				new ImageIcon("images/design/LowerField.png").getImage().getScaledInstance(width*3/5,height/4, Image.SCALE_DEFAULT));
 		lowerField.setIcon(i);
 		lowerField.setLayout(new FlowLayout(FlowLayout.CENTER, 0, height/8-height*3/44));
 		lowerField.setPreferredSize(new Dimension(width*3/5,height*1/4));
@@ -216,7 +230,7 @@ public class GameView extends JFrame{
 			
 		upperField=new JLabel();
 		i = new ImageIcon(
-				new ImageIcon("images/HearthStone Design/UpperField.png").getImage().getScaledInstance(width*3/5,height/4, Image.SCALE_DEFAULT));
+				new ImageIcon("images/design/UpperField.png").getImage().getScaledInstance(width*3/5,height/4, Image.SCALE_DEFAULT));
 		upperField.setIcon(i);
 		upperField.setLayout(new FlowLayout(FlowLayout.CENTER, 0, height/8-height*3/44));
 		upperField.setPreferredSize(new Dimension(width*3/5,height*1/4));
@@ -228,7 +242,7 @@ public class GameView extends JFrame{
 		
 		middlePanel= new JLabel();
 		i = new ImageIcon(
-				new ImageIcon("images/HearthStone Design/MessageBar.png").getImage().getScaledInstance(width*4/5,height/22+7, Image.SCALE_DEFAULT));
+				new ImageIcon("images/design/MessageBar.png").getImage().getScaledInstance(width*4/5,height/22+7, Image.SCALE_DEFAULT));
 		middlePanel.setIcon(i);
 		middlePanel.setBackground(Color.BLACK);
 		field.add(middlePanel);
@@ -242,6 +256,10 @@ public class GameView extends JFrame{
 		
 		
 	}
+	
+	
+
+	
 	public JPanel getLowerPanel() {
 		return lowerPanel;
 	}

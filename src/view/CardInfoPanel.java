@@ -35,8 +35,6 @@ public class CardInfoPanel extends JPanel {
 		backGround.setSize(new Dimension(width,height));
 		backGround.setLayout(new GridBagLayout());
 		backGround.setLocation(0, 0);
-//		ImageIcon i = new ImageIcon(new ImageIcon("images/HearthStone Design/CardViewBack.png").getImage().getScaledInstance(width, height, Image.SCALE_DEFAULT));
-//		backGround.setIcon(i);
 		add(backGround);
 		GridBagConstraints c = new GridBagConstraints();
 		

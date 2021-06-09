@@ -1,5 +1,7 @@
 package engine;
 
+import java.io.Serializable;
+
 import exceptions.CannotAttackException;
 import exceptions.FullFieldException;
 import exceptions.FullHandException;
@@ -14,17 +16,22 @@ import model.cards.minions.Minion;
 import model.heroes.Hero;
 import model.heroes.HeroListener;
 
-public class Game implements ActionValidator, HeroListener {
+public class Game implements ActionValidator, HeroListener,Serializable {
 	private Hero firstHero;
 	private Hero secondHero;
 	private Hero currentHero;
 	private Hero opponent;
+	
+	public boolean change;
 
-	private GameListener listener;
+	private transient GameListener listener;
 
 	public Game(Hero p1, Hero p2) throws FullHandException, CloneNotSupportedException {
 		firstHero = p1;
 		secondHero = p2;
+		
+		change=false;
+		
 		firstHero.setListener(this);
 		secondHero.setListener(this);
 		firstHero.setValidator(this);
@@ -131,6 +138,7 @@ public class Game implements ActionValidator, HeroListener {
 
 	@Override
 	public void endTurn() throws FullHandException, CloneNotSupportedException {
+		change =true;
 		Hero temp = currentHero;
 		currentHero = opponent;
 		opponent = temp;

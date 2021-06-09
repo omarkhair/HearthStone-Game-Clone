@@ -5,9 +5,15 @@ import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -89,6 +95,14 @@ public class HeroSelectionPanel extends JPanel implements ActionListener {
 		heros.get(i).setBorderPainted(false);
 
 	}
+	private Clip playSound(String s) throws UnsupportedAudioFileException, IOException, LineUnavailableException{
+		AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(s).getAbsoluteFile());
+		Clip clip = AudioSystem.getClip();
+		clip.open(audioInputStream);
+		clip.start();
+		return clip;
+}
+
 
 	private JButton createButton(int i, int j) {
 		JButton b = new JButton();
@@ -100,6 +114,11 @@ public class HeroSelectionPanel extends JPanel implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		try {
+			playSound("sounds/HeroSelect.wav");
+		} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e2) {
+			System.out.println("Error");
+		}
 		JButton b = (JButton) e.getSource();
 		int i = heros.indexOf(b);
 		String imagePath = "";

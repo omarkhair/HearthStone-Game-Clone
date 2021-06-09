@@ -1,0 +1,25 @@
+To Start the game: 
+1- Open the project in eclipse.
+2- Go to src/view/Start.java or you can open the HeartStone.exe file 
+3- Run Start.java
+4- In the oppenning window , you have to options START and LAN Mode 
+-START means both players will play on the same device 
+-LAN Mode means each player will play on different device but should both be on the same Local area network . 
+5- For LAN Mode ,you will choose hero from the left panel ,then you may invite a friend with his IP Address or you can wait for a friend till he invites you . 
+6- Once you or your friend accept the invitation , you can start the game . 
+7- For START , you will choose the two heros from the same device choose both heroes by clicking on their icons
+8- Press Play icon and go .
+
+
+Now you successfully created a game.
+
+Here are some tips to get used to the interface
+- the message bar in the middle will be your guide through the game.
+- each player will take either the upper or the lower half.
+- to play a card or a spell, click on its photo and click play from the left panel.
+- to target a hero click on its photo on the right. 
+    Please try to click on the upper part of the hero icon 
+    as you may accidentally click on the hero power instead.
+- to use the hero power click on the circular icon beside the hero photo.
+- you can exit from the minion-attack/spell/hero-power mode by pressing the same button again.
+- you can see the details of any card by monitoring it on the left.

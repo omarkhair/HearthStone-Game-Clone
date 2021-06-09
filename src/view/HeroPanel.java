@@ -11,8 +11,10 @@ public class HeroPanel extends JPanel{
 	private JLabel heroImage;
 	private JButton heroPower;
 	private JLabel deckCards;
-	private JProgressBar manaBar;
-	private JProgressBar health;
+	private ManaBar manaBar;
+	private HealthBar health;
+	
+	private Hero hero;
 	
 	private int width;
 	private int height;
@@ -64,18 +66,18 @@ public class HeroPanel extends JPanel{
 		heroPower.setFont(new Font("Traditional serif", Font.BOLD, 20) );
 		heroPower.setSize(new Dimension (height/4,height/4));
 		heroPower.setLocation(width*3/5,height*2/5);
-		manaBar=new JProgressBar();
-		manaBar.setPreferredSize(new Dimension(width/2,height/12));
-		manaBar.setValue(0);
-		manaBar.setString("");
+		manaBar=new ManaBar(width*4/5,height/11);
+		//manaBar.setPreferredSize(new Dimension(width/2,height/12));
+		//manaBar.setValue(0);
+		//manaBar.setString("");
 		manaBar.setFont(f);
-		manaBar.setStringPainted(true);
-		health=new JProgressBar();
+		//manaBar.setStringPainted(true);
+		health=new HealthBar(width*4/5,height/12);
 		health.setPreferredSize(new Dimension(width*4/5,height/12));
-		health.setValue(0);
-		health.setString("");
+//		health.setValue(0);
+//		health.setString("");
 		health.setFont(f);
-		health.setStringPainted(true);
+		//health.setStringPainted(true);
 		c.gridx=0;
 		c.gridy=0;
 		backGround.add(heroImage,c);
@@ -98,11 +100,11 @@ public class HeroPanel extends JPanel{
 	
 	
 
-	public JProgressBar getHealth() {
+	public HealthBar getHealth() {
 		return health;
 	}
 
-	public void setHealth(JProgressBar health) {
+	public void setHealth(HealthBar health) {
 		this.health = health;
 	}
 
@@ -150,10 +152,10 @@ public class HeroPanel extends JPanel{
 
 
 
-	public JProgressBar getManaBar() {
+	public ManaBar getManaBar() {
 		return manaBar;
 	}
-	public void setManaBar(JProgressBar mana) {
+	public void setManaBar(ManaBar mana) {
 		this.manaBar = mana;
 	}
 
@@ -187,6 +189,22 @@ public class HeroPanel extends JPanel{
 
 	public void setHeight(int height) {
 		this.height = height;
+	}
+
+
+
+
+
+	public Hero getHero() {
+		return hero;
+	}
+
+
+
+
+
+	public void setHero(Hero hero) {
+		this.hero = hero;
 	}
 	
 	

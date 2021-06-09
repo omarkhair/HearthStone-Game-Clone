@@ -10,8 +10,14 @@ import java.awt.PopupMenu;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 import javax.swing.border.Border;
 
@@ -102,7 +108,7 @@ public class HeroDeathView extends JFrame implements ActionListener {
 		background1.add(upper2);
 		background2.add(lower2); 
 
-		
+		playSound("sounds/Victory.wav");
 
 		// Quit.setBounds((int) (0.833 * (dim.width)), (int) (0.787 * (dim.height)), 400, 250);
 		this.revalidate();
@@ -187,6 +193,20 @@ public static String lowerpath (Hero lower , Hero upper,Boolean up) {
 		
 		new HeroDeathView( new Paladin(),new Mage() , true  ); 
 	}
+	private Clip playSound(String s) {
+		AudioInputStream audioInputStream;
+		try {
+			audioInputStream = AudioSystem.getAudioInputStream(new File(s).getAbsoluteFile());
+		
+		Clip clip = AudioSystem.getClip();
+		clip.open(audioInputStream);
+		clip.start();
+		return clip;
+		} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+			System.out.println("Error");
+		}
+		return null;
+}
 
 	public void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand() == "PlayAgain") {

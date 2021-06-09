@@ -1,6 +1,8 @@
 package model.cards;
 
-public abstract class Card implements Cloneable {
+import java.io.Serializable;
+
+public abstract class Card implements Cloneable,Serializable {
 	private String name;
 	private int manaCost;
 	private Rarity rarity;
